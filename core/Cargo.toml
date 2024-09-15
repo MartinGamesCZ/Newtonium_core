@@ -1,0 +1,8 @@
+[package]
+name = "newtonium"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tao = "0.30.0"
+wry = "0.43.1"
