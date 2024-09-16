@@ -1,66 +1,36 @@
+use ipc::register_ipc_command;
 use tao::{
     event::{Event, WindowEvent},
-    event_loop::{ControlFlow, EventLoop},
+    event_loop::{ControlFlow, EventLoop, EventLoopBuilder},
+    platform::unix::EventLoopBuilderExtUnix,
     window::WindowBuilder,
 };
-use wry::WebViewBuilder;
+use window::{create_webview, create_window};
 
-fn main() -> wry::Result<()> {
-    let event_loop = EventLoop::new();
-    let window = WindowBuilder::new()
-        .with_title("Newtonium project @core")
-        .build(&event_loop)
-        .unwrap();
+mod ipc;
+mod window;
 
-    #[cfg(any(
-        target_os = "windows",
-        target_os = "macos",
-        target_os = "ios",
-        target_os = "android"
-    ))]
-    let builder = WebViewBuilder::new(&window);
+#[tokio::main]
+async fn main() {
+    register_ipc_command("window_open", |args: Vec<String>| {
+        println!("confirm::ok");
+        tokio::task::spawn_blocking(move || {
+            let event_loop = EventLoopBuilder::new().with_any_thread(true).build();
 
-    #[cfg(not(any(
-        target_os = "windows",
-        target_os = "macos",
-        target_os = "ios",
-        target_os = "android"
-    )))]
-    let builder = {
-        use tao::platform::unix::WindowExtUnix;
-        use wry::WebViewBuilderExtUnix;
-        let vbox = window.default_vbox().unwrap();
-        WebViewBuilder::new_gtk(vbox)
-    };
+            let win = create_window(&event_loop, args[1].as_str());
+            let _builder = create_webview(&win, args[2].as_str());
 
-    let _webview = builder
-        .with_url("http://github.com/MartinGamesCZ/Newtonium")
-        .with_drag_drop_handler(|e| {
-            match e {
-                wry::DragDropEvent::Enter { paths, position } => {
-                    println!("DragEnter: {position:?} {paths:?} ")
+            event_loop.run(move |event, _, control_flow| {
+                *control_flow = ControlFlow::Wait;
+
+                if let Event::WindowEvent {
+                    event: WindowEvent::CloseRequested,
+                    ..
+                } = event
+                {
+                    *control_flow = ControlFlow::Exit
                 }
-                wry::DragDropEvent::Over { position } => println!("DragOver: {position:?} "),
-                wry::DragDropEvent::Drop { paths, position } => {
-                    println!("DragDrop: {position:?} {paths:?} ")
-                }
-                wry::DragDropEvent::Leave => println!("DragLeave"),
-                _ => {}
-            }
-
-            true
-        })
-        .build()?;
-
-    event_loop.run(move |event, _, control_flow| {
-        *control_flow = ControlFlow::Wait;
-
-        if let Event::WindowEvent {
-            event: WindowEvent::CloseRequested,
-            ..
-        } = event
-        {
-            *control_flow = ControlFlow::Exit
-        }
+            });
+        });
     });
 }
