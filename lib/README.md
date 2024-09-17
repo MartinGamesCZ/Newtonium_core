@@ -1,15 +1,5 @@
-# @newtonium/core
+# Newtonium Core
+... Newtonium, just without the electrons...
 
-To install dependencies:
-
-```bash
-bun install
-```
-
-To run:
-
-```bash
-bun run src/index.ts
-```
-
-This project was created using `bun init` in bun v1.1.9. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+## What is Newtonium Core?
+Newtonium Core is a core function for the [Newtonium framework](https://github.com/MartinGamesCZ/Newtonium) that manages windows and core functionality.
