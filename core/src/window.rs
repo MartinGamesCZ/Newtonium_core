@@ -1,11 +1,12 @@
 use std::any::Any;
 
-use tao::{event_loop::EventLoop, window::WindowBuilder};
+use tao::{event_loop::EventLoop, platform::unix::WindowBuilderExtUnix, window::WindowBuilder};
 use wry::WebViewBuilder;
 
 pub fn create_window(event_loop: &EventLoop<()>, title: &str) -> tao::window::Window {
     WindowBuilder::new()
         .with_title(title)
+        .with_cursor_moved_event(true)
         .build(event_loop)
         .unwrap()
 }
@@ -32,5 +33,5 @@ pub fn create_webview(window: &tao::window::Window, url: &str) -> wry::WebView {
         WebViewBuilder::new_gtk(vbox)
     };
 
-    builder.with_url(url).build().unwrap()
+    builder.with_url(url).with_devtools(true).build().unwrap()
 }

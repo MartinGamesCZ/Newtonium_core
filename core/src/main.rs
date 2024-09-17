@@ -61,6 +61,7 @@ async fn main() {
                     *control_flow = ControlFlow::Exit;
 
                     println!("confirm::ok");
+                    println!("event::exit");
                 }
                 _ => {
                     println!("confirm::not_found");
@@ -70,7 +71,11 @@ async fn main() {
 
         match event {
             Event::WindowEvent { event, .. } => match event {
-                WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
+                WindowEvent::CloseRequested => {
+                    println!("event::exit");
+
+                    *control_flow = ControlFlow::Exit;
+                }
                 _ => (),
             },
             _ => (),
