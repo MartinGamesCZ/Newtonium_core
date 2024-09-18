@@ -3,7 +3,6 @@ use std::io::{BufRead, Stdin};
 use tao::{
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop, EventLoopBuilder},
-    platform::unix::EventLoopBuilderExtUnix,
     window::WindowBuilder,
 };
 use window::{create_webview, create_window};

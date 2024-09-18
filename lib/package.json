@@ -1,8 +1,13 @@
 {
   "name": "@newtonium/core",
   "module": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "type": "module",
-  "version": "0.1.1",
+  "version": "0.1.5",
+  "scripts": {
+    "prepare": "tsc && cp src/binaries dist/binaries -r"
+  },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/node": "^22.5.5"

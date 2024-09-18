@@ -1,4 +1,5 @@
 import type { Subprocess, SyncSubprocess } from "bun";
+import { existsSync, fstatSync } from "fs";
 import path from "path";
 
 export default class Window {
@@ -6,6 +7,8 @@ export default class Window {
   url: string;
 
   process: Subprocess<"pipe", "pipe", "pipe"> | null = null;
+
+  binary_path: string = path.join(import.meta.dirname, "binaries/newtonium");
 
   event_listeners: {
     [key: string]: Function[];
@@ -21,9 +24,15 @@ export default class Window {
     });
   }
 
+  setCustomBinaryPath(path: string) {
+    this.binary_path = path;
+
+    return this;
+  }
+
   async run_binary() {
     let process = Bun.spawn({
-      cmd: [path.join(import.meta.dirname, "binaries/newtonium")],
+      cmd: [this.binary_path],
       stdio: ["pipe", "pipe", "pipe"],
       stdin: "pipe",
     });
