@@ -14,4 +14,10 @@ export default class Window {
     on(name: string, fn: Function): void;
     _fire_event(name: string, ...args: any[]): void;
     open(): void;
+    ipc: {
+        listeners: Array<Function>;
+        onMessage: (fn: Function) => void;
+        send: (msg: string) => void;
+        _fire_recv: (msg: string) => void;
+    };
 }

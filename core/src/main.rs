@@ -14,10 +14,10 @@ mod window;
 async fn main() {
     let event_loop = EventLoop::new();
 
-    let window = create_window(&event_loop, "Newtonium Window");
-    let builder = create_webview(&window, "https://example.com");
-
     let (tx, rx) = std::sync::mpsc::channel();
+
+    let window = create_window(&event_loop, "Newtonium Window");
+    let builder = create_webview(&window, "https://example.com", tx.clone());
 
     std::thread::spawn(move || {
         let stdin = std::io::stdin();
@@ -53,6 +53,14 @@ async fn main() {
                 }
                 "window_url_set" => {
                     let _ = builder.load_url(&args[1]);
+
+                    println!("confirm::ok");
+                }
+                "ipc_message" => {
+                    let _ = builder.evaluate_script(
+                        ("window.newtonium_ipc._fire_recv('".to_string() + &args[1] + "')")
+                            .as_str(),
+                    );
 
                     println!("confirm::ok");
                 }

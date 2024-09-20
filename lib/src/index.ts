@@ -22,6 +22,12 @@ export default class Window {
       this.send_command("window_title_set::" + this.title);
       this.send_command("window_url_set::" + this.url);
     });
+
+    this.on("ipc", (data: any) => {
+      console.log("NEWTONIUM::CORE::IPC", data[1].replace(/^"|"$/g, ""));
+
+      this.ipc._fire_recv(data[1].replace(/^"|"$/g, ""));
+    });
   }
 
   setCustomBinaryPath(path: string) {
@@ -89,4 +95,22 @@ export default class Window {
         this.process.stdin.write(new TextEncoder().encode(this.title + "\n"));
     }
   }
+
+  ipc = {
+    listeners: [] as Array<Function>,
+
+    onMessage: (fn: Function) => {
+      this.ipc.listeners.push(fn);
+    },
+
+    send: (msg: string) => {
+      this.send_command("ipc_message::" + msg);
+    },
+
+    _fire_recv: (msg: string) => {
+      this.ipc.listeners.forEach((fn) => {
+        fn(msg);
+      });
+    },
+  };
 }
