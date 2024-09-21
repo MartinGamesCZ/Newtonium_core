@@ -4,9 +4,9 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
-  "version": "0.1.6",
+  "version": "0.2.1",
   "scripts": {
-    "prepare": "tsc && cp src/binaries dist/binaries -r"
+    "prepare": "tsc && cp src/binaries dist -r"
   },
   "devDependencies": {
     "@types/bun": "latest",

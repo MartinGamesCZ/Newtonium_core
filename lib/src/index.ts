@@ -8,7 +8,10 @@ export default class Window {
 
   process: Subprocess<"pipe", "pipe", "pipe"> | null = null;
 
-  binary_path: string = path.join(import.meta.dirname, "binaries/newtonium");
+  binary_path: string = path.join(
+    import.meta.dirname,
+    "binaries/newtonium" + (process.platform == "win32" ? ".exe" : ""),
+  );
 
   event_listeners: {
     [key: string]: Function[];
