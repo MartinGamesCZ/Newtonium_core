@@ -1,8 +1,4 @@
-import type { Subprocess, SyncSubprocess } from "bun";
-import { existsSync, fstatSync } from "fs";
 import path from "path";
-import { dlopen, FFIType, type Library } from "bun:ffi";
-import { randomBytes } from "crypto";
 
 export default class Window {
   qml: string;
@@ -22,7 +18,7 @@ export default class Window {
     this.icon = icon;
     this.appName = appName;
 
-    this.worker = new Worker(path.join(import.meta.dirname, "worker.ts"));
+    this.worker = new Worker(path.join(import.meta.dirname, "worker"));
   }
 
   setCustomBinaryPath(path: string) {

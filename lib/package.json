@@ -6,11 +6,12 @@
   "type": "module",
   "version": "0.2.1",
   "scripts": {
-    "prepare": "tsc && cp src/binaries dist -r"
+    "prepare": "bun build --minify --outdir dist src/index.ts && bun build --minify --target=bun --outdir dist src/worker.ts && tsc && cp src/lib dist -r"
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "@types/node": "^22.5.5"
+    "@types/node": "^22.5.5",
+    "bun-types": "^1.1.33"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"

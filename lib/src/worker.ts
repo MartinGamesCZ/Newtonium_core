@@ -24,3 +24,6 @@ self.onmessage = (e) => {
     e: close,
   });
 };
+
+const p = import.meta.filename;
+export default p;
