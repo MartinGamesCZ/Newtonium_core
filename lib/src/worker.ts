@@ -10,15 +10,15 @@ self.onmessage = (e) => {
     },
   });
 
-  let title = new TextEncoder().encode(e.data.title);
-  let url = new TextEncoder().encode(e.data.url);
-  let instance_secret = new TextEncoder().encode(e.data.instance_secret);
+  let qml = new TextEncoder().encode(e.data.qml);
+  let icon = new TextEncoder().encode(e.data.icon);
+  let appName = new TextEncoder().encode(e.data.appName);
 
-  title = new Uint8Array([...title, 0]);
-  url = new Uint8Array([...url, 0]);
-  instance_secret = new Uint8Array([...instance_secret, 0]);
+  qml = new Uint8Array([...qml, 0]);
+  icon = new Uint8Array([...icon, 0]);
+  appName = new Uint8Array([...appName, 0]);
 
-  lib.symbols.open_window(title, url, instance_secret);
+  lib.symbols.open_window(qml, icon, appName);
 
   postMessage({
     e: close,

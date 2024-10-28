@@ -5,9 +5,10 @@ import { dlopen, FFIType, type Library } from "bun:ffi";
 import { randomBytes } from "crypto";
 
 export default class Window {
-  title: string;
-  url: string;
-  private instanceSecret: string = randomBytes(32).toString("hex");
+  qml: string;
+  icon: string;
+  appName: string;
+  //private instanceSecret: string = randomBytes(32).toString("hex");
 
   worker: Worker;
 
@@ -16,9 +17,10 @@ export default class Window {
     "lib/libnewtonium" + (process.platform == "win32" ? ".dll" : ".so")
   );
 
-  constructor(title: string, url: string) {
-    this.title = title;
-    this.url = url;
+  constructor(qml: string, icon: string, appName: string) {
+    this.qml = qml;
+    this.icon = icon;
+    this.appName = appName;
 
     this.worker = new Worker(path.join(import.meta.dirname, "worker.ts"));
   }
@@ -32,11 +34,9 @@ export default class Window {
   open() {
     this.worker.postMessage({
       lib_path: this.lib_path,
-      title: this.title,
-      url: this.url,
-      instance_secret: this.instanceSecret,
+      qml: this.qml,
+      icon: this.icon,
+      appName: this.appName,
     });
-
-    console.log("Sent message to worker!");
   }
 }

@@ -1,63 +1,32 @@
 use std::{ ffi::CStr, os::raw::c_char };
-use tao::{
-    event::{ Event, WindowEvent },
-    event_loop::{ ControlFlow, EventLoop, EventLoopBuilder },
-};
-use window::{ create_webview, create_window };
 
-#[cfg(
-    not(any(target_os = "windows", target_os = "macos", target_os = "ios", target_os = "android"))
-)]
-use tao::platform::unix::EventLoopBuilderExtUnix;
-
-mod window;
+use qt_core::QString;
+use qt_qml::QQmlApplicationEngine;
+use qt_gui::{ QGuiApplication, QIcon };
 
 #[no_mangle]
 pub extern "C" fn open_window(
-    title: *const c_char,
-    url: *const c_char,
-    instance_secret: *const c_char
-) -> () {
-    let title = unsafe { CStr::from_ptr(title) };
-    let url = unsafe { CStr::from_ptr(url) };
-    let instance_secret = unsafe { CStr::from_ptr(instance_secret) };
+    qml: *const c_char,
+    icon: *const c_char,
+    app_name: *const c_char
+) -> i32 {
+    let c_str = unsafe { CStr::from_ptr(qml) };
+    let qml_str = c_str.to_str().unwrap_or("");
 
-    #[cfg(
-        not(
-            any(
-                target_os = "windows",
-                target_os = "macos",
-                target_os = "ios",
-                target_os = "android"
-            )
-        )
-    )]
-    let event_loop = EventLoopBuilder::new().with_any_thread(true).build();
+    let c_str = unsafe { CStr::from_ptr(icon) };
+    let icon_str = c_str.to_str().unwrap_or("");
 
-    #[cfg(
-        any(target_os = "windows", target_os = "macos", target_os = "ios", target_os = "android")
-    )]
-    let event_loop = EventLoop::new();
+    let c_str = unsafe { CStr::from_ptr(app_name) };
+    let app_name_str = c_str.to_str().unwrap_or("");
 
-    let window = create_window(&event_loop, title.to_str().unwrap_or("Newtonium"));
-    let _builder = create_webview(
-        &window,
-        url.to_str().unwrap_or("https://example.com"),
-        instance_secret.to_str().unwrap_or("")
-    );
+    QGuiApplication::init(|_| unsafe {
+        let engine = QQmlApplicationEngine::new();
+        engine.load_q_string(&QString::from_std_str(qml_str));
 
-    event_loop.run(move |event, _, control_flow| {
-        *control_flow = ControlFlow::Poll;
+        QGuiApplication::set_window_icon(&QIcon::from_q_string(&QString::from_std_str(icon_str)));
 
-        match event {
-            Event::WindowEvent { event, .. } =>
-                match event {
-                    WindowEvent::CloseRequested => {
-                        *control_flow = ControlFlow::Exit;
-                    }
-                    _ => (),
-                }
-            _ => (),
-        }
-    });
+        QGuiApplication::set_application_display_name(&QString::from_std_str(app_name_str));
+
+        QGuiApplication::exec()
+    })
 }
