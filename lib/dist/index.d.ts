@@ -1,10 +1,8 @@
 export default class Window {
-    qml: string;
-    icon: string;
-    appName: string;
+    id: string;
     worker: Worker;
     lib_path: string;
-    constructor(qml: string, icon: string, appName: string);
+    constructor(id: string);
     setCustomBinaryPath(path: string): this;
     open(): void;
 }
