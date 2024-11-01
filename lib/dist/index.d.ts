@@ -1,3 +1,4 @@
+export { default as Document } from "./dom/document";
 export default class Window {
     id: string;
     worker: Worker;
