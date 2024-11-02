@@ -24,6 +24,10 @@ export default class Window {
     ready: [],
   };
 
+  element_listeners: {
+    [key: string]: Function;
+  } = {};
+
   constructor(title: string, icon: string) {
     this._worker = new Worker(this.worker_path);
     this._id = randomId();
@@ -45,6 +49,13 @@ export default class Window {
       if (e.data.e === "ready") {
         this._channel_ptr = e.data.channel_ptr;
         this._fireEvent("ready");
+      }
+      if (e.data.e === "event") {
+        const listener = this.element_listeners[e.data.symbol_id];
+
+        if (!listener) return;
+
+        listener();
       }
     };
   }

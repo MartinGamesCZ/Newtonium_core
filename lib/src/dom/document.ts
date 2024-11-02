@@ -53,6 +53,10 @@ export default class Document {
     return element;
   }
 
+  deleteElement(iid: string) {
+    this._elements.delete(iid);
+  }
+
   [util.inspect.custom](_depth: number, _options: any) {
     return `NewtoniumDocument {
   elements: ${this._elements.size}

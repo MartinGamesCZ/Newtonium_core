@@ -1,6 +1,7 @@
 import { FFIType, JSCallback, type Pointer } from "bun:ffi";
 import type Window from "./window";
 import { toCString } from "../ffi";
+import { randomId } from "../utils/id";
 
 export type ElementTag = "view" | "text" | "button";
 
@@ -36,19 +37,24 @@ export default class Element {
   }
 
   addEventListener(event: string, listener: () => void) {
-    const cb = new JSCallback(() => console.log("a"), {
-      args: [],
-      returns: FFIType.void,
-    });
+    const symbol_id = randomId();
 
-    this._window.core.attach_listener(
+    this._window.element_listeners[symbol_id] = listener;
+
+    this._window.core.add_event_listener(
       this._window.getChannelPtr() as Pointer,
       toCString(this.iid),
-      toCString(this.tagName),
       toCString(event),
-      cb
+      toCString(symbol_id)
+    );
+  }
+
+  remove() {
+    this._window.core.remove_element(
+      this._window.getChannelPtr() as Pointer,
+      toCString(this.iid)
     );
 
-    // TODO: MEMORY LEAK - fix, cb is never freed
+    this._window.document.deleteElement(this.iid);
   }
 }

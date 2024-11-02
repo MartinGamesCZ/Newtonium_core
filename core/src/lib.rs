@@ -1,6 +1,7 @@
 mod dom;
 mod elements;
 
+use gtk4 as gtk;
 use std::ffi::{ c_void, CStr };
 use std::os::raw::c_char;
 use std::sync::{ Arc, Mutex };
@@ -15,11 +16,6 @@ use std::sync::mpsc;
 use tungstenite::{ connect, Message };
 use std::collections::HashMap;
 use lazy_static::lazy_static;
-
-lazy_static! {
-    static ref CALLBACKS: Arc<Mutex<HashMap<String, Box<dyn Fn() + Send>>>> = 
-        Arc::new(Mutex::new(HashMap::new()));
-}
 
 thread_local! {
   static WINDOWS: std::cell::RefCell<
@@ -51,7 +47,8 @@ pub extern "C" fn initialize() -> bool {
 pub extern "C" fn create_window(
   title: *const c_char,
   icon: *const c_char,
-  id: *const c_char
+  id: *const c_char,
+  event_cb: extern "C" fn(*const c_char, *const c_char) -> ()
 ) -> *mut async_channel::Sender<String> {
   let title = (unsafe { CStr::from_ptr(title) }).to_str().unwrap();
   let icon = (unsafe { CStr::from_ptr(icon) }).to_str().unwrap();
@@ -133,6 +130,19 @@ pub extern "C" fn create_window(
 
           window.show_all();
         }
+        "remove_element" => {
+          let id = splt[1];
+
+          ELEMENTS.with(|elements| {
+            let element = elements.borrow().get(id).unwrap().clone();
+
+            let parent = element.parent().unwrap().clone().downcast::<gtk::Container>().unwrap();
+
+            parent.remove(&element);
+
+            elements.borrow_mut().remove(id);
+          });
+        }
         "set_attribute" => {
           let id = splt[1];
           let tag = splt[2];
@@ -143,24 +153,17 @@ pub extern "C" fn create_window(
 
           set_element_attribute(tag, &element, key, value);
         }
-        "attach_listener" => {
-          let id = splt[1];
-          let tag = splt[2];
-          let event = splt[3];
-          let symbol_id = splt[4].parse::<String>().unwrap();
+        "add_event_listener" => {
+          let id = splt[1].to_string();
+          let event = splt[2];
+          let symbol_id = splt[3].to_string();
 
-          let element = ELEMENTS.with(|elements| { elements.borrow().get(id).unwrap().clone() });
+          let element = ELEMENTS.with(|elements| {
+            elements.borrow().get(id.as_str()).unwrap().clone()
+          });
 
-          // Modified event connection code
           element.connect(event, false, move |_| {
-            // Get lock and execute callback
-            if let Ok(callbacks) = CALLBACKS.lock() {
-              if let Some(callback) = callbacks.get(&symbol_id) {
-                callback();
-              } else {
-                println!("Callback not found: {}", symbol_id);
-              }
-            }
+            event_cb(symbol_id.as_ptr() as *const i8, id.as_ptr() as *const i8);
 
             None
           });
@@ -300,16 +303,15 @@ pub extern "C" fn set_attribute(
 }
 
 #[no_mangle]
-pub extern "C" fn attach_listener(
+pub extern "C" fn add_event_listener(
   tx_ptr: *mut async_channel::Sender<String>,
   id: *const c_char,
-  tag: *const c_char,
-  event: *const c_char,
-  callback: extern "C" fn() -> ()
+  key: *const c_char,
+  symbol_id: *const c_char
 ) {
   let id = (unsafe { CStr::from_ptr(id) }).to_str().unwrap();
-  let tag = (unsafe { CStr::from_ptr(tag) }).to_str().unwrap();
-  let event = (unsafe { CStr::from_ptr(event) }).to_str().unwrap();
+  let key = (unsafe { CStr::from_ptr(key) }).to_str().unwrap();
+  let symbol_id = (unsafe { CStr::from_ptr(symbol_id) }).to_str().unwrap();
 
   if tx_ptr.is_null() {
     println!("Pointer is null");
@@ -326,20 +328,39 @@ pub extern "C" fn attach_listener(
 
     match tx_ptr.as_ref() {
       Some(tx) => {
-        let symbol_id = uuid::Uuid::new_v4().to_string().parse::<String>().unwrap();
+        tx.try_send(format!("{};{};{};{}", "add_event_listener", id, key, symbol_id)).unwrap();
+        true;
+      }
+      None => {
+        println!("Window is null");
+        false;
+      }
+    }
 
-        // When attaching listener from another thread
-        fn attach_listener(symbol_id: String, callback: impl Fn() + Send + 'static) {
-          if let Ok(mut callbacks) = CALLBACKS.lock() {
-            callbacks.insert(symbol_id, Box::new(callback));
-          }
-        }
+    ();
+  }
+}
 
-        attach_listener(symbol_id.clone(), move || { callback() });
+#[no_mangle]
+pub extern "C" fn remove_element(tx_ptr: *mut async_channel::Sender<String>, id: *const c_char) {
+  let id = (unsafe { CStr::from_ptr(id) }).to_str().unwrap();
 
-        tx.try_send(
-          format!("{};{};{};{};{}", "attach_listener", id, tag, event, symbol_id)
-        ).unwrap();
+  if tx_ptr.is_null() {
+    println!("Pointer is null");
+    return;
+  }
+
+  unsafe {
+    let tx_ptr = tx_ptr as *const async_channel::Sender<String>;
+
+    if tx_ptr.is_null() {
+      println!("Window pointer is null");
+      return;
+    }
+
+    match tx_ptr.as_ref() {
+      Some(tx) => {
+        tx.try_send(format!("{};{}", "remove_element", id)).unwrap();
         true;
       }
       None => {

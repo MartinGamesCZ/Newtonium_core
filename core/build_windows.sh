@@ -1,0 +1,1 @@
+docker start -ai newcore-build

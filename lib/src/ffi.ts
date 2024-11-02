@@ -11,7 +11,12 @@ export function createFFI(path: string) {
       returns: FFIType.void,
     },
     create_window: {
-      args: [FFIType.cstring, FFIType.cstring, FFIType.cstring],
+      args: [
+        FFIType.cstring,
+        FFIType.cstring,
+        FFIType.cstring,
+        FFIType.function,
+      ],
       returns: FFIType.ptr,
     },
     create_element: {
@@ -32,14 +37,12 @@ export function createFFI(path: string) {
       ],
       returns: FFIType.void,
     },
-    attach_listener: {
-      args: [
-        FFIType.ptr,
-        FFIType.cstring,
-        FFIType.cstring,
-        FFIType.cstring,
-        FFIType.function,
-      ],
+    add_event_listener: {
+      args: [FFIType.ptr, FFIType.cstring, FFIType.cstring, FFIType.cstring],
+      returns: FFIType.void,
+    },
+    remove_element: {
+      args: [FFIType.ptr, FFIType.cstring],
       returns: FFIType.void,
     },
   });
