@@ -1,3 +1,5 @@
 /target
 package.zip
 rust-crosscompile/
+package/
+dlls/

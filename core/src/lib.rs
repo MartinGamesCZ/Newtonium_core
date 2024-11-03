@@ -1,7 +1,6 @@
 mod dom;
 mod elements;
 
-use gtk4 as gtk;
 use std::ffi::{ c_void, CStr };
 use std::os::raw::c_char;
 use std::sync::{ Arc, Mutex };
