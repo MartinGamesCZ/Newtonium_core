@@ -45,6 +45,10 @@ export function createFFI(path: string) {
       args: [FFIType.ptr, FFIType.cstring],
       returns: FFIType.void,
     },
+    set_styles: {
+      args: [FFIType.ptr, FFIType.cstring, FFIType.cstring],
+      returns: FFIType.void,
+    },
   });
 
   return symbols;

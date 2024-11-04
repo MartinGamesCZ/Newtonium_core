@@ -24,23 +24,26 @@ export default class Document {
     this.body = this._createElementWithId("view", "body", true);
   }
 
-  createElement(tag: ElementTag) {
+  createElement(tag: ElementTag, args: { [key: string]: any } = {}) {
     const iid = randomId();
 
-    return this._createElementWithId(tag, iid);
+    return this._createElementWithId(tag, iid, false, args);
   }
 
   private _createElementWithId(
     tag: ElementTag,
     iid: string,
-    skipCreate = false
+    skipCreate = false,
+    args: {
+      [key: string]: any;
+    } = {}
   ) {
     if (!skipCreate)
       this._window.core.create_element(
         this._window.getChannelPtr() as Pointer,
         toCString(tag),
         toCString(iid),
-        toCString("")
+        toCString(JSON.stringify(args))
       );
 
     const element = new Element(tag, iid, this._window);

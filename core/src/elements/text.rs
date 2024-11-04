@@ -1,7 +1,14 @@
-use gtk::prelude::*;
+use std::collections::HashMap;
 
-pub fn create_element_text(args: Vec<String>) -> gtk::Label {
+use gtk::prelude::*;
+use serde_json::Value;
+
+pub fn create_element_text(args: HashMap<String, Value>) -> gtk::Label {
   let element = gtk::Label::new(None);
+
+  args.iter().for_each(|(key, value)| {
+    set_element_attribute_text(&element, key, value.as_str().unwrap());
+  });
 
   element
 }

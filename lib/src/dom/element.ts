@@ -2,6 +2,7 @@ import { FFIType, JSCallback, type Pointer } from "bun:ffi";
 import type Window from "./window";
 import { toCString } from "../ffi";
 import { randomId } from "../utils/id";
+import cssTransformer from "../utils/css_transformer";
 
 export type ElementTag = "view" | "text" | "button";
 
@@ -17,6 +18,21 @@ export default class Element {
 
     this._window = _window;
   }
+
+  style: {
+    [key: string]: any;
+    setProperty: (key: string, value: string) => void;
+  } = {
+    setProperty: (key: string, value: string) => {
+      this.style[key] = value;
+
+      this._window.core.set_styles(
+        this._window.getChannelPtr() as Pointer,
+        toCString(this.iid),
+        toCString(cssTransformer(this.iid, this.style))
+      );
+    },
+  };
 
   appendChild(child: Element) {
     this._window.core.append_child(

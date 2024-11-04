@@ -9,8 +9,9 @@ use elements::set_element_attribute;
 use gdk::glib::translate::from_glib;
 use gtk::ffi::gtk_init_check;
 use once_cell::sync::Lazy;
-use gtk::prelude::*;
+use gtk::{ prelude::*, CssProvider, StyleProvider };
 use gtk::{ Application, ApplicationWindow };
+use serde_json::Value;
 use std::sync::mpsc;
 use tungstenite::{ connect, Message };
 use std::collections::HashMap;
@@ -22,6 +23,9 @@ thread_local! {
   > = std::cell::RefCell::new(std::collections::HashMap::new());
   static ELEMENTS: std::cell::RefCell<
     std::collections::HashMap<String, gtk::Widget>
+  > = std::cell::RefCell::new(std::collections::HashMap::new());
+  static ELEMENT_STYLES: std::cell::RefCell<
+    std::collections::HashMap<String, CssProvider>
   > = std::cell::RefCell::new(std::collections::HashMap::new());
 }
 
@@ -98,14 +102,11 @@ pub extern "C" fn create_window(
         "create_element" => {
           let id = splt[1];
 
-          let element = dom_create_element(
-            splt[2],
-            splt[3..]
-              .to_vec()
-              .iter()
-              .map(|s| s.to_string())
-              .collect()
-          );
+          let output: HashMap<String, Value> = serde_json::from_str(splt[3]).unwrap();
+
+          let element = dom_create_element(splt[2], output);
+
+          element.style_context().add_class(("iid_".to_string() + id).as_str());
 
           ELEMENTS.with(|elements| {
             elements.borrow_mut().insert(id.to_string(), element);
@@ -166,6 +167,36 @@ pub extern "C" fn create_window(
 
             None
           });
+        }
+        "set_styles" => {
+          let id = splt[1];
+          let styles = splt[2].to_string();
+
+          let element = ELEMENTS.with(|elements| { elements.borrow().get(id).unwrap().clone() });
+
+          let old_provider = ELEMENT_STYLES.with(|element_styles| {
+            let styles = element_styles.borrow_mut();
+
+            let old_provider: Option<CssProvider> = styles.get(id).cloned();
+
+            old_provider
+          });
+
+          if old_provider.is_some() {
+            element.style_context().remove_provider(&old_provider.unwrap());
+          }
+
+          let provider = gtk::CssProvider::new();
+
+          provider.load_from_data(styles.as_bytes()).unwrap();
+
+          element.style_context().add_provider(&provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+          ELEMENT_STYLES.with(|styles| {
+            styles.borrow_mut().insert(id.to_string(), provider.clone());
+          });
+
+          ();
         }
         _ => {
           println!("Unknown message: {}", msg);
@@ -360,6 +391,43 @@ pub extern "C" fn remove_element(tx_ptr: *mut async_channel::Sender<String>, id:
     match tx_ptr.as_ref() {
       Some(tx) => {
         tx.try_send(format!("{};{}", "remove_element", id)).unwrap();
+        true;
+      }
+      None => {
+        println!("Window is null");
+        false;
+      }
+    }
+
+    ();
+  }
+}
+
+#[no_mangle]
+pub extern "C" fn set_styles(
+  tx_ptr: *mut async_channel::Sender<String>,
+  id: *const c_char,
+  styles: *const c_char
+) {
+  let id = (unsafe { CStr::from_ptr(id) }).to_str().unwrap();
+  let styles = (unsafe { CStr::from_ptr(styles) }).to_str().unwrap();
+
+  if tx_ptr.is_null() {
+    println!("Pointer is null");
+    return;
+  }
+
+  unsafe {
+    let tx_ptr = tx_ptr as *const async_channel::Sender<String>;
+
+    if tx_ptr.is_null() {
+      println!("Window pointer is null");
+      return;
+    }
+
+    match tx_ptr.as_ref() {
+      Some(tx) => {
+        tx.try_send(format!("{};{};{}", "set_styles", id, styles)).unwrap();
         true;
       }
       None => {

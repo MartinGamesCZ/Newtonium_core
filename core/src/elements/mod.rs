@@ -1,11 +1,17 @@
+use std::collections::HashMap;
+
 use gtk::Button;
 use gtk::prelude::*;
+use serde_json::Value;
 
 pub mod button;
 pub mod view;
 pub mod text;
 
-pub fn get_element_creator(tag: &str, args: Vec<String>) -> Box<dyn Fn() -> gtk::Widget> {
+pub fn get_element_creator(
+  tag: &str,
+  args: HashMap<String, Value>
+) -> Box<dyn Fn() -> gtk::Widget> {
   match tag {
     "button" => Box::new(|| button::element_create_button().upcast()),
     "view" => Box::new(|| view::create_element_view().upcast()),
