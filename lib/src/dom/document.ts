@@ -30,6 +30,10 @@ export default class Document {
     return this._createElementWithId(tag, iid, false, args);
   }
 
+  getElementById(id: string) {
+    return this._elements.get(id)?.element;
+  }
+
   private _createElementWithId(
     tag: ElementTag,
     iid: string,
