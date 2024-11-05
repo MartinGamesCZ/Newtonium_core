@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use gdk::{ glib::ObjectExt, RGBA };
 use gtk::{
   self,
@@ -5,27 +7,16 @@ use gtk::{
   STYLE_PROPERTY_BACKGROUND_COLOR,
   STYLE_PROPERTY_PADDING,
 };
+use serde_json::Value;
 
-pub fn element_create_button() -> gtk::Button {
-  let button = gtk::Button::with_label("");
+pub fn element_create_button(args: HashMap<String, Value>) -> gtk::Button {
+  let element = gtk::Button::with_label("");
 
-  /*let css_provider = gtk::CssProvider::new();
-  css_provider.load_from_data(b"button { background-color: red; }").expect("Failed to load CSS");
-  button.style_context().add_provider(&css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
+  args.iter().for_each(|(key, value)| {
+    set_element_attribute_button(&element, key, value.as_str().unwrap());
+  });
 
-  let cln = button.clone();
-  button.connect_clicked(move |_| {
-    cln.style_context().remove_provider(&css_provider);
-
-    let css_provider = gtk::CssProvider::new();
-    css_provider
-      .load_from_data(b"button { background-color: green; }")
-      .expect("Failed to load CSS");
-
-    cln.style_context().add_provider(&css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
-  });*/
-
-  button
+  element
 }
 
 pub fn set_element_attribute_button(element: &gtk::Button, key: &str, value: &str) {

@@ -9,6 +9,7 @@ export type ElementTag = "view" | "text" | "button";
 export default class Element {
   tagName: ElementTag;
   iid: string;
+  _symbols: Map<string, string[]> = new Map();
 
   private _window: Window;
 
@@ -57,12 +58,27 @@ export default class Element {
 
     this._window.element_listeners[symbol_id] = listener;
 
+    this._symbols.set(event, [...(this._symbols.get(event) || []), symbol_id]);
+
     this._window.core.add_event_listener(
       this._window.getChannelPtr() as Pointer,
       toCString(this.iid),
       toCString(event),
       toCString(symbol_id)
     );
+
+    return symbol_id;
+  }
+
+  removeEventListener(event: string) {
+    const symbol_ids = this._symbols.get(event);
+
+    if (!symbol_ids) return;
+
+    symbol_ids.forEach((symbol_id) => {
+      this._window.element_listeners[symbol_id] = () => {};
+      delete this._window.element_listeners[symbol_id];
+    });
   }
 
   remove() {

@@ -1,6 +1,7 @@
 mod dom;
 mod elements;
 
+use std::env;
 use std::ffi::{ c_void, CStr };
 use std::os::raw::c_char;
 use std::sync::{ Arc, Mutex };
@@ -31,6 +32,8 @@ thread_local! {
 
 #[no_mangle]
 pub extern "C" fn initialize() -> bool {
+  env::set_var("GTK_CSD", "0");
+
   let success: bool = unsafe {
     from_glib(gtk_init_check(std::ptr::null_mut(), std::ptr::null_mut()))
   };

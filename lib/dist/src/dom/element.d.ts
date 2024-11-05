@@ -3,6 +3,7 @@ export type ElementTag = "view" | "text" | "button";
 export default class Element {
     tagName: ElementTag;
     iid: string;
+    _symbols: Map<string, string[]>;
     private _window;
     constructor(tag: ElementTag, iid: string, _window: Window);
     style: {
@@ -11,6 +12,7 @@ export default class Element {
     };
     appendChild(child: Element): void;
     setAttribute(key: string, value: string): void;
-    addEventListener(event: string, listener: () => void): void;
+    addEventListener(event: string, listener: () => void): string;
+    removeEventListener(event: string): void;
     remove(): void;
 }

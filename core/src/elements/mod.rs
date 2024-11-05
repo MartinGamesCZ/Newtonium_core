@@ -13,7 +13,7 @@ pub fn get_element_creator(
   args: HashMap<String, Value>
 ) -> Box<dyn Fn() -> gtk::Widget> {
   match tag {
-    "button" => Box::new(|| button::element_create_button().upcast()),
+    "button" => Box::new(move || button::element_create_button(args.clone()).upcast()),
     "view" => Box::new(|| view::create_element_view().upcast()),
     "text" => Box::new(move || text::create_element_text(args.clone()).upcast()),
     _ => panic!("Unknown element: {}", tag),

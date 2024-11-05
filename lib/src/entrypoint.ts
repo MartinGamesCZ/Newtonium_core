@@ -12,6 +12,6 @@ const proc = Bun.spawnSync({
   stdio: ["inherit", "inherit", "inherit"],
   env: {
     ...process.env,
-    GTK_CSD: "0",
+    //GTK_CSD: "0",
   },
 });
