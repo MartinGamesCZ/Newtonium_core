@@ -49,6 +49,16 @@ export function createFFI(path: string) {
       args: [FFIType.ptr, FFIType.cstring, FFIType.cstring],
       returns: FFIType.void,
     },
+    get_attribute: {
+      args: [
+        FFIType.ptr,
+        FFIType.cstring,
+        FFIType.cstring,
+        FFIType.cstring,
+        FFIType.cstring,
+      ],
+      returns: FFIType.cstring,
+    },
   });
 
   return symbols;

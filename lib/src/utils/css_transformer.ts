@@ -9,7 +9,7 @@ export default function cssTransformer(
       ${Object.entries(styles)
         .filter(([, v]) => typeof v === "string")
         .map(([key, value]) => `${key}: ${value}`)
-        .join("; ")}
+        .join("~ ")}
     }
   `
     .replace(/\n/g, " ")

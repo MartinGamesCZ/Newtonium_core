@@ -51,9 +51,22 @@ export default class Window {
         this._fireEvent("ready");
       }
       if (e.data.e === "event") {
-        const listener = this.element_listeners[e.data.symbol_id];
+        const listener =
+          this.element_listeners[
+            e.data.symbol_id.startsWith("!!")
+              ? e.data.iid.split("!!")[0]
+              : e.data.symbol_id
+          ];
 
         if (!listener) return;
+
+        if (e.data.symbol_id.startsWith("!!")) {
+          listener(e.data.iid.split("!!").slice(1).join("!!"));
+
+          delete this.element_listeners[e.data.symbol_id];
+
+          return;
+        }
 
         listener();
       }

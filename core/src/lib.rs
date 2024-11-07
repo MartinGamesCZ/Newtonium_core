@@ -6,7 +6,7 @@ use std::ffi::{ c_void, CStr };
 use std::os::raw::c_char;
 use std::sync::{ Arc, Mutex };
 use dom::dom_create_element;
-use elements::set_element_attribute;
+use elements::{ get_element_attribute, set_element_attribute };
 use gdk::glib::translate::from_glib;
 use gtk::ffi::gtk_init_check;
 use once_cell::sync::Lazy;
@@ -191,7 +191,7 @@ pub extern "C" fn create_window(
 
           let provider = gtk::CssProvider::new();
 
-          provider.load_from_data(styles.as_bytes()).unwrap();
+          provider.load_from_data(styles.replace("~", ";").as_bytes()).unwrap();
 
           element.style_context().add_provider(&provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
 
@@ -200,6 +200,20 @@ pub extern "C" fn create_window(
           });
 
           ();
+        }
+        "get_property" => {
+          let id = splt[1];
+          let tag = splt[2];
+          let key = splt[3];
+          let symbol_id = splt[4];
+
+          let element = ELEMENTS.with(|elements| { elements.borrow().get(id).unwrap().clone() });
+
+          let value = get_element_attribute(tag, &element, key);
+
+          let response = format!("{}!!{}", symbol_id, value);
+
+          event_cb("!!get_property".as_ptr() as *const i8, response.as_ptr() as *const i8);
         }
         _ => {
           println!("Unknown message: {}", msg);
@@ -431,6 +445,47 @@ pub extern "C" fn set_styles(
     match tx_ptr.as_ref() {
       Some(tx) => {
         tx.try_send(format!("{};{};{}", "set_styles", id, styles)).unwrap();
+        true;
+      }
+      None => {
+        println!("Window is null");
+        false;
+      }
+    }
+
+    ();
+  }
+}
+
+#[no_mangle]
+pub extern "C" fn get_attribute(
+  tx_ptr: *mut async_channel::Sender<String>,
+  id: *const c_char,
+  tag: *const c_char,
+  key: *const c_char,
+  symbol_id: *const c_char
+) {
+  let id = (unsafe { CStr::from_ptr(id) }).to_str().unwrap();
+  let tag = (unsafe { CStr::from_ptr(tag) }).to_str().unwrap();
+  let key = (unsafe { CStr::from_ptr(key) }).to_str().unwrap();
+  let symbol_id = (unsafe { CStr::from_ptr(symbol_id) }).to_str().unwrap();
+
+  if tx_ptr.is_null() {
+    println!("Pointer is null");
+    return;
+  }
+
+  unsafe {
+    let tx_ptr = tx_ptr as *const async_channel::Sender<String>;
+
+    if tx_ptr.is_null() {
+      println!("Window pointer is null");
+      return;
+    }
+
+    match tx_ptr.as_ref() {
+      Some(tx) => {
+        tx.try_send(format!("{};{};{};{};{}", "get_property", id, tag, key, symbol_id)).unwrap();
         true;
       }
       None => {

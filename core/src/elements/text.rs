@@ -19,3 +19,10 @@ pub fn set_element_attribute_text(element: &gtk::Label, key: &str, value: &str) 
     _ => panic!("Unknown attribute: {}", key),
   }
 }
+
+pub fn get_element_attribute_text(element: &gtk::Label, key: &str) -> String {
+  match key {
+    "innerHTML" => element.label().to_string(),
+    _ => panic!("Unknown attribute: {}", key),
+  }
+}

@@ -4,7 +4,7 @@ import { toCString } from "../ffi";
 import { randomId } from "../utils/id";
 import cssTransformer from "../utils/css_transformer";
 
-export type ElementTag = "view" | "text" | "button";
+export type ElementTag = "view" | "text" | "button" | "input";
 
 export default class Element {
   tagName: ElementTag;
@@ -27,10 +27,12 @@ export default class Element {
     setProperty: (key: string, value: string) => {
       this.style[key] = value;
 
+      const transformed = cssTransformer(this.iid, this.style);
+
       this._window.core.set_styles(
         this._window.getChannelPtr() as Pointer,
         toCString(this.iid),
-        toCString(cssTransformer(this.iid, this.style))
+        toCString(transformed)
       );
     },
   };
@@ -51,6 +53,24 @@ export default class Element {
       toCString(key),
       toCString(value)
     );
+  }
+
+  getAttribute(key: string) {
+    const sid = randomId();
+
+    return new Promise((r) => {
+      this._window.element_listeners[sid] = (val: string) => {
+        r(val);
+      };
+
+      this._window.core.get_attribute(
+        this._window.getChannelPtr() as Pointer,
+        toCString(this.iid),
+        toCString(this.tagName),
+        toCString(key),
+        toCString(sid)
+      );
+    });
   }
 
   addEventListener(event: string, listener: () => void) {

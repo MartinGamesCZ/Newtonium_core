@@ -25,3 +25,10 @@ pub fn set_element_attribute_button(element: &gtk::Button, key: &str, value: &st
     _ => panic!("Unknown attribute: {}", key),
   }
 }
+
+pub fn get_element_attribute_button(element: &gtk::Button, key: &str) -> String {
+  match key {
+    "innerHTML" => element.label().unwrap().to_string(),
+    _ => panic!("Unknown attribute: {}", key),
+  }
+}

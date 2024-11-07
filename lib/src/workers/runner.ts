@@ -23,14 +23,17 @@ self.onmessage = (e) => {
 
   const cb = new JSCallback(
     (symbol_id: Pointer, iid: Pointer) => {
+      let dec_iid = new TextDecoder().decode(
+        new Uint8Array(toArrayBuffer(iid))
+      );
+      let symb_id = new TextDecoder()
+        .decode(new Uint8Array(toArrayBuffer(symbol_id)))
+        .substring(0, 32);
+
       postMessage({
         e: "event",
-        symbol_id: new TextDecoder()
-          .decode(new Uint8Array(toArrayBuffer(symbol_id)))
-          .substring(0, 32),
-        iid: new TextDecoder()
-          .decode(new Uint8Array(toArrayBuffer(iid)))
-          .substring(0, 32),
+        symbol_id: symb_id,
+        iid: symb_id.startsWith("!!") ? dec_iid : dec_iid.substring(0, 32),
       });
     },
     {

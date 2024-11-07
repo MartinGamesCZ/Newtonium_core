@@ -1,5 +1,5 @@
 import type Window from "./window";
-export type ElementTag = "view" | "text" | "button";
+export type ElementTag = "view" | "text" | "button" | "input";
 export default class Element {
     tagName: ElementTag;
     iid: string;
@@ -12,6 +12,7 @@ export default class Element {
     };
     appendChild(child: Element): void;
     setAttribute(key: string, value: string): void;
+    getAttribute(key: string): void;
     addEventListener(event: string, listener: () => void): string;
     removeEventListener(event: string): void;
     remove(): void;
