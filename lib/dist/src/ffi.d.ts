@@ -40,5 +40,9 @@ export declare function createFFI(path: string): import("bun:ffi").ConvertFns<{
         args: (FFIType.ptr | FFIType.cstring)[];
         returns: FFIType.cstring;
     };
+    insert_before: {
+        args: (FFIType.ptr | FFIType.cstring)[];
+        returns: FFIType.void;
+    };
 }>;
 export declare function toCString(str: string): Uint8Array;

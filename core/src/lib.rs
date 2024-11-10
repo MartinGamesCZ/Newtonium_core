@@ -1,6 +1,7 @@
 mod dom;
 mod elements;
 
+use std::borrow::Borrow;
 use std::env;
 use std::ffi::{ c_void, CStr };
 use std::os::raw::c_char;
@@ -214,6 +215,48 @@ pub extern "C" fn create_window(
           let response = format!("{}!!{};~;;", symbol_id, value);
 
           event_cb("!!get_property".as_ptr() as *const i8, response.as_ptr() as *const i8);
+        }
+        "insert_before" => {
+          let parent_id = splt[1];
+          let child_id = splt[2];
+          let sibling_id = splt[3];
+
+          let parent = ELEMENTS.with(|elements| {
+            elements.borrow().get(parent_id).unwrap().clone()
+          });
+
+          let child = ELEMENTS.with(|elements| {
+            elements.borrow().get(child_id).unwrap().clone()
+          });
+
+          let sibling = ELEMENTS.with(|elements| {
+            elements.borrow().get(sibling_id).unwrap().clone()
+          });
+
+          let parent = parent.downcast::<gtk::Container>().unwrap();
+
+          // Get index of sibling in parent
+          let index = parent
+            .children()
+            .iter()
+            .position(|c| AsRef::<gtk::Widget>::as_ref(c) == AsRef::<gtk::Widget>::as_ref(&sibling))
+            .unwrap();
+
+          // Get everything after index, including index
+          let children_vec = parent.children();
+          let mut children = children_vec.iter().skip(index);
+
+          children.for_each(|c| {
+            parent.remove(c);
+          });
+
+          parent.add(&child);
+
+          children_vec.iter().for_each(|c| {
+            parent.add(c);
+          });
+
+          window.show_all();
         }
         _ => {
           println!("Unknown message: {}", msg);
@@ -486,6 +529,47 @@ pub extern "C" fn get_attribute(
     match tx_ptr.as_ref() {
       Some(tx) => {
         tx.try_send(format!("{};{};{};{};{}", "get_property", id, tag, key, symbol_id)).unwrap();
+        true;
+      }
+      None => {
+        println!("Window is null");
+        false;
+      }
+    }
+
+    ();
+  }
+}
+
+#[no_mangle]
+pub extern "C" fn insert_before(
+  tx_ptr: *mut async_channel::Sender<String>,
+  parent_id: *const c_char,
+  child_id: *const c_char,
+  sibling_id: *const c_char
+) {
+  let parent_id = (unsafe { CStr::from_ptr(parent_id) }).to_str().unwrap();
+  let child_id = (unsafe { CStr::from_ptr(child_id) }).to_str().unwrap();
+  let sibling_id = (unsafe { CStr::from_ptr(sibling_id) }).to_str().unwrap();
+
+  if tx_ptr.is_null() {
+    println!("Pointer is null");
+    return;
+  }
+
+  unsafe {
+    let tx_ptr = tx_ptr as *const async_channel::Sender<String>;
+
+    if tx_ptr.is_null() {
+      println!("Window pointer is null");
+      return;
+    }
+
+    match tx_ptr.as_ref() {
+      Some(tx) => {
+        tx.try_send(
+          format!("{};{};{};{}", "insert_before", parent_id, child_id, sibling_id)
+        ).unwrap();
         true;
       }
       None => {

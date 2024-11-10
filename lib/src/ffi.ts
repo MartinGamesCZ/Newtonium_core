@@ -59,6 +59,10 @@ export function createFFI(path: string) {
       ],
       returns: FFIType.cstring,
     },
+    insert_before: {
+      args: [FFIType.ptr, FFIType.cstring, FFIType.cstring, FFIType.cstring],
+      returns: FFIType.void,
+    },
   });
 
   return symbols;

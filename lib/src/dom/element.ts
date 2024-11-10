@@ -46,6 +46,15 @@ export default class Element {
     );
   }
 
+  insertBefore(child: Element, before: Element) {
+    this._window.core.insert_before(
+      this._window.getChannelPtr() as Pointer,
+      toCString(this.iid),
+      toCString(child.iid),
+      toCString(before.iid)
+    );
+  }
+
   setAttribute(key: string, value: string) {
     this._window.core.set_attribute(
       this._window.getChannelPtr() as Pointer,

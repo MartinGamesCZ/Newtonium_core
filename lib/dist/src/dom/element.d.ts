@@ -11,6 +11,7 @@ export default class Element {
         setProperty: (key: string, value: string) => void;
     };
     appendChild(child: Element): void;
+    insertBefore(child: Element, before: Element): void;
     setAttribute(key: string, value: string): void;
     getAttribute(key: string): string;
     addEventListener(event: string, listener: () => void): string;

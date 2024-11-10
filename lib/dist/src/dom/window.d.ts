@@ -47,6 +47,10 @@ export default class Window {
             args: (import("bun:ffi").FFIType.ptr | import("bun:ffi").FFIType.cstring)[];
             returns: import("bun:ffi").FFIType.cstring;
         };
+        insert_before: {
+            args: (import("bun:ffi").FFIType.ptr | import("bun:ffi").FFIType.cstring)[];
+            returns: import("bun:ffi").FFIType.void;
+        };
     }>;
     title: string;
     icon: string;
