@@ -40,17 +40,5 @@ export declare function createFFI(path: string): import("bun:ffi").ConvertFns<{
         args: (FFIType.ptr | FFIType.cstring)[];
         returns: FFIType.cstring;
     };
-    create_channel: {
-        args: never[];
-        returns: FFIType.ptr;
-    };
-    resolve: {
-        args: FFIType.ptr[];
-        returns: FFIType.void;
-    };
-    await_action: {
-        args: FFIType.ptr[];
-        returns: FFIType.bool;
-    };
 }>;
 export declare function toCString(str: string): Uint8Array;

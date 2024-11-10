@@ -1,4 +1,5 @@
 import Document from "./document";
+import { MessagePort } from "worker_threads";
 export default class Window {
     worker_path: string;
     lib_path: string;
@@ -46,22 +47,12 @@ export default class Window {
             args: (import("bun:ffi").FFIType.ptr | import("bun:ffi").FFIType.cstring)[];
             returns: import("bun:ffi").FFIType.cstring;
         };
-        create_channel: {
-            args: never[];
-            returns: import("bun:ffi").FFIType.ptr;
-        };
-        resolve: {
-            args: import("bun:ffi").FFIType.ptr[];
-            returns: import("bun:ffi").FFIType.void;
-        };
-        await_action: {
-            args: import("bun:ffi").FFIType.ptr[];
-            returns: import("bun:ffi").FFIType.bool;
-        };
     }>;
     title: string;
     icon: string;
     document: Document;
+    localPort: MessagePort;
+    shared: SharedArrayBuffer;
     listeners: {
         [key: string]: Function[];
     };

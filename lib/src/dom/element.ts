@@ -59,6 +59,8 @@ export default class Element {
   getAttribute(key: string) {
     const sid = randomId();
 
+    const i32 = new Int32Array(this._window.shared);
+
     this._window.core.get_attribute(
       this._window.getChannelPtr() as Pointer,
       toCString(this.iid),
@@ -67,11 +69,21 @@ export default class Element {
       toCString(sid)
     );
 
-    const i32 = new Int32Array(this._window.shared);
+    const _status = Atomics.wait(i32, 0, 0, 10);
 
-    Atomics.wait(i32, 0, 0);
+    if (_status === "timed-out") {
+      console.log("Timed out");
+    }
 
-    const { message } = receiveMessageOnPort(this._window.localPort) ?? {};
+    let message = "";
+
+    while (true) {
+      const obj = receiveMessageOnPort(this._window.localPort);
+
+      if (!obj) break;
+
+      message = obj.message;
+    }
 
     return message;
   }
