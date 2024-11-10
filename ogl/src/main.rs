@@ -1,18 +1,18 @@
 extern crate glfw;
 use gl::types::{ GLfloat, GLsizei, GLsizeiptr, GLuint, GLvoid };
-use glfw::{ GlfwReceiver, MouseButton, WindowEvent };
+use glfw::{ GlfwReceiver, WindowEvent };
 
 use self::glfw::{ Context, Key, Action };
 
 extern crate gl;
 
-use std::{ ffi::CString, sync::mpsc::Receiver };
+use std::ffi::CString;
 
 // settings
 const SCR_WIDTH: u32 = 800;
 const SCR_HEIGHT: u32 = 600;
 
-const vertex_shader_source: &str =
+const VERTEX_SHADER_SOURCE: &str =
     r#"
 #version 330 core
 layout (location = 0) in vec3 aPos;
@@ -21,7 +21,7 @@ void main() {
 }
     "#;
 
-const fragment_shader_source: &str =
+const FRAGMENT_SHADER_SOURCE: &str =
     r#"
 #version 330 core
 out vec4 FragColor;
@@ -58,9 +58,9 @@ pub fn main() {
     // ---------------------------------------
     gl::load_with(|symbol| window.get_proc_address(symbol) as *const _);
 
-    let (shader_program, VAO) = unsafe {
+    let (shader_program, vao) = unsafe {
         let vertex_shader = gl::CreateShader(gl::VERTEX_SHADER);
-        let c_str_vert = CString::new(vertex_shader_source.as_bytes()).unwrap();
+        let c_str_vert = CString::new(VERTEX_SHADER_SOURCE.as_bytes()).unwrap();
         gl::ShaderSource(vertex_shader, 1, &c_str_vert.as_ptr(), std::ptr::null());
         gl::CompileShader(vertex_shader);
 
@@ -85,7 +85,7 @@ pub fn main() {
         }
 
         let fragment_shader = gl::CreateShader(gl::FRAGMENT_SHADER);
-        let c_str_frag = CString::new(fragment_shader_source.as_bytes()).unwrap();
+        let c_str_frag = CString::new(FRAGMENT_SHADER_SOURCE.as_bytes()).unwrap();
         gl::ShaderSource(fragment_shader, 1, &c_str_frag.as_ptr(), std::ptr::null());
         gl::CompileShader(fragment_shader);
 
@@ -149,49 +149,48 @@ pub fn main() {
             3, // Druhý trojúhelník
         ];
 
-        let (mut VBO, mut VAO, mut EBO) = (0, 0, 0);
-        unsafe {
-            // Vytvoření VAO
-            gl::GenVertexArrays(1, &mut VAO);
-            gl::BindVertexArray(VAO);
+        let (mut vbo, mut vao, mut ebo) = (0, 0, 0);
 
-            // Vytvoření a naplnění VBO
-            gl::GenBuffers(1, &mut VBO);
-            gl::BindBuffer(gl::ARRAY_BUFFER, VBO);
-            gl::BufferData(
-                gl::ARRAY_BUFFER,
-                (vertices.len() * std::mem::size_of::<GLfloat>()) as GLsizeiptr,
-                vertices.as_ptr() as *const GLvoid,
-                gl::STATIC_DRAW
-            );
+        // Vytvoření VAO
+        gl::GenVertexArrays(1, &mut vao);
+        gl::BindVertexArray(vao);
 
-            // Vytvoření a naplnění EBO
-            gl::GenBuffers(1, &mut EBO);
-            gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, EBO);
-            gl::BufferData(
-                gl::ELEMENT_ARRAY_BUFFER,
-                (indices.len() * std::mem::size_of::<GLuint>()) as GLsizeiptr,
-                indices.as_ptr() as *const GLvoid,
-                gl::STATIC_DRAW
-            );
+        // Vytvoření a naplnění VBO
+        gl::GenBuffers(1, &mut vbo);
+        gl::BindBuffer(gl::ARRAY_BUFFER, vbo);
+        gl::BufferData(
+            gl::ARRAY_BUFFER,
+            (vertices.len() * std::mem::size_of::<GLfloat>()) as GLsizeiptr,
+            vertices.as_ptr() as *const GLvoid,
+            gl::STATIC_DRAW
+        );
 
-            // Specifikace vertex atributů
-            gl::VertexAttribPointer(
-                0, // Číslo atributu (odpovídá shaderu)
-                3, // Počet komponent (x, y, z)
-                gl::FLOAT, // Typ dat
-                gl::FALSE, // Normalizace
-                (3 * std::mem::size_of::<GLfloat>()) as GLsizei,
-                std::ptr::null()
-            );
-            gl::EnableVertexAttribArray(0);
+        // Vytvoření a naplnění EBO
+        gl::GenBuffers(1, &mut ebo);
+        gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, ebo);
+        gl::BufferData(
+            gl::ELEMENT_ARRAY_BUFFER,
+            (indices.len() * std::mem::size_of::<GLuint>()) as GLsizeiptr,
+            indices.as_ptr() as *const GLvoid,
+            gl::STATIC_DRAW
+        );
 
-            // Unbindování VAO a VBO
-            gl::BindBuffer(gl::ARRAY_BUFFER, 0);
-            gl::BindVertexArray(0);
+        // Specifikace vertex atributů
+        gl::VertexAttribPointer(
+            0, // Číslo atributu (odpovídá shaderu)
+            3, // Počet komponent (x, y, z)
+            gl::FLOAT, // Typ dat
+            gl::FALSE, // Normalizace
+            (3 * std::mem::size_of::<GLfloat>()) as GLsizei,
+            std::ptr::null()
+        );
+        gl::EnableVertexAttribArray(0);
 
-            (shader_program, VAO)
-        }
+        // Unbindování VAO a VBO
+        gl::BindBuffer(gl::ARRAY_BUFFER, 0);
+        gl::BindVertexArray(0);
+
+        (shader_program, vao)
     };
 
     // render loop
@@ -207,7 +206,7 @@ pub fn main() {
             gl::Clear(gl::COLOR_BUFFER_BIT);
 
             gl::UseProgram(shader_program);
-            gl::BindVertexArray(VAO);
+            gl::BindVertexArray(vao);
             gl::DrawElements(gl::TRIANGLES, 6, gl::UNSIGNED_INT, std::ptr::null());
         }
 

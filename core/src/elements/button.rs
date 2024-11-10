@@ -1,12 +1,6 @@
 use std::collections::HashMap;
 
-use gdk::{ glib::ObjectExt, RGBA };
-use gtk::{
-  self,
-  prelude::{ ButtonExt, CssProviderExt, StyleContextExt, WidgetExt },
-  STYLE_PROPERTY_BACKGROUND_COLOR,
-  STYLE_PROPERTY_PADDING,
-};
+use gtk::{ self, prelude::ButtonExt };
 use serde_json::Value;
 
 pub fn element_create_button(args: HashMap<String, Value>) -> gtk::Button {

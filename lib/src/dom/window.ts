@@ -2,6 +2,7 @@ import path from "path";
 import Document from "./document";
 import { randomId } from "../utils/id";
 import { createFFI } from "../ffi";
+import { MessageChannel, MessagePort, Worker } from "worker_threads";
 
 export default class Window {
   worker_path: string = path.join(import.meta.dirname, "../workers/runner");
@@ -17,6 +18,8 @@ export default class Window {
   title: string;
   icon: string;
   document: Document;
+  localPort: MessagePort;
+  shared: SharedArrayBuffer;
 
   listeners: {
     [key: string]: Function[];
@@ -29,7 +32,18 @@ export default class Window {
   } = {};
 
   constructor(title: string, icon: string) {
-    this._worker = new Worker(this.worker_path);
+    const ports = new MessageChannel();
+    this.localPort = ports.port1;
+
+    this.shared = new SharedArrayBuffer(4);
+
+    this._worker = new Worker(this.worker_path, {
+      workerData: {
+        port: ports.port2,
+        shared: this.shared,
+      },
+      transferList: [ports.port2],
+    });
     this._id = randomId();
     this.title = title;
     this.icon = icon;
@@ -44,33 +58,31 @@ export default class Window {
       icon: this.icon,
     });
 
-    this._worker.onmessage = (e) => {
-      if (e.data.e === "close") this._worker.terminate();
-      if (e.data.e === "ready") {
-        this._channel_ptr = e.data.channel_ptr;
+    this._worker.on("message", (e) => {
+      if (e.e === "close") this._worker.terminate();
+      if (e.e === "ready") {
+        this._channel_ptr = e.channel_ptr;
         this._fireEvent("ready");
       }
-      if (e.data.e === "event") {
+      if (e.e === "event") {
         const listener =
           this.element_listeners[
-            e.data.symbol_id.startsWith("!!")
-              ? e.data.iid.split("!!")[0]
-              : e.data.symbol_id
+            e.symbol_id.startsWith("!!") ? e.iid.split("!!")[0] : e.symbol_id
           ];
 
         if (!listener) return;
 
-        if (e.data.symbol_id.startsWith("!!")) {
-          listener(e.data.iid.split("!!").slice(1).join("!!"));
+        if (e.symbol_id.startsWith("!!")) {
+          listener(e.iid.split("!!").slice(1).join("!!").split(";~;")[0]);
 
-          delete this.element_listeners[e.data.symbol_id];
+          delete this.element_listeners[e.symbol_id];
 
           return;
         }
 
         listener();
       }
-    };
+    });
   }
 
   on(event: string, listener: Function) {

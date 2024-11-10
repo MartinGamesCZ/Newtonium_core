@@ -3,6 +3,7 @@ import type Window from "./window";
 import { toCString } from "../ffi";
 import { randomId } from "../utils/id";
 import cssTransformer from "../utils/css_transformer";
+import { receiveMessageOnPort } from "worker_threads";
 
 export type ElementTag = "view" | "text" | "button" | "input";
 
@@ -58,19 +59,21 @@ export default class Element {
   getAttribute(key: string) {
     const sid = randomId();
 
-    return new Promise((r) => {
-      this._window.element_listeners[sid] = (val: string) => {
-        r(val);
-      };
+    this._window.core.get_attribute(
+      this._window.getChannelPtr() as Pointer,
+      toCString(this.iid),
+      toCString(this.tagName),
+      toCString(key),
+      toCString(sid)
+    );
 
-      this._window.core.get_attribute(
-        this._window.getChannelPtr() as Pointer,
-        toCString(this.iid),
-        toCString(this.tagName),
-        toCString(key),
-        toCString(sid)
-      );
-    });
+    const i32 = new Int32Array(this._window.shared);
+
+    Atomics.wait(i32, 0, 0);
+
+    const { message } = receiveMessageOnPort(this._window.localPort) ?? {};
+
+    return message;
   }
 
   addEventListener(event: string, listener: () => void) {

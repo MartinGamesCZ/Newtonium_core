@@ -211,7 +211,7 @@ pub extern "C" fn create_window(
 
           let value = get_element_attribute(tag, &element, key);
 
-          let response = format!("{}!!{}", symbol_id, value);
+          let response = format!("{}!!{};~;;", symbol_id, value);
 
           event_cb("!!get_property".as_ptr() as *const i8, response.as_ptr() as *const i8);
         }

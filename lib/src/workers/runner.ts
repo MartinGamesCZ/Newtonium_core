@@ -9,6 +9,7 @@ import {
 } from "bun:ffi";
 import { randomUUID } from "crypto";
 import { createFFI, toCString } from "../ffi";
+import { workerData } from "worker_threads";
 
 declare var self: Worker;
 
@@ -29,6 +30,17 @@ self.onmessage = (e) => {
       let symb_id = new TextDecoder()
         .decode(new Uint8Array(toArrayBuffer(symbol_id)))
         .substring(0, 32);
+
+      if (symb_id.startsWith("!!")) {
+        workerData.port.postMessage(
+          dec_iid.split("!!").slice(1).join("!!").split(";~;")[0]
+        );
+
+        const i32 = new Int32Array(workerData.shared);
+        Atomics.notify(i32, 0);
+
+        return;
+      }
 
       postMessage({
         e: "event",

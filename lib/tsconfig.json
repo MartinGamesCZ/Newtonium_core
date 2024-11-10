@@ -31,5 +31,5 @@
 
     "types": ["bun-types"]
   },
-  "include": ["./src/**/*", "test/tsconfig.json"]
+  "include": ["./src/**/*", "test/tsconfig.json", "test"]
 }

@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
-use gdk::{ glib::ObjectExt, RGBA };
-use gtk::{ self, prelude::{ ButtonExt, CssProviderExt, EntryExt, StyleContextExt, WidgetExt } };
+use gtk::{ self, prelude::EntryExt };
 use serde_json::Value;
 
 pub fn create_element_input(args: HashMap<String, Value>) -> gtk::Entry {

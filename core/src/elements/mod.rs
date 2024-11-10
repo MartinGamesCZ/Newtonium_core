@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use gtk::Button;
 use gtk::prelude::*;
 use serde_json::Value;
 

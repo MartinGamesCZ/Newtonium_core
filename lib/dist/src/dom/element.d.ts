@@ -12,7 +12,7 @@ export default class Element {
     };
     appendChild(child: Element): void;
     setAttribute(key: string, value: string): void;
-    getAttribute(key: string): void;
+    getAttribute(key: string): Promise<unknown>;
     addEventListener(event: string, listener: () => void): string;
     removeEventListener(event: string): void;
     remove(): void;

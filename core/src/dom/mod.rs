@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use gtk::Button;
 use serde_json::Value;
 
 use crate::elements;
