@@ -4,7 +4,7 @@ export default function cssTransformer(
     [key: string]: string;
   }
 ) {
-  const out = `
+  let out = `
     .iid_${id} {
       ${Object.entries(styles)
         .filter(([, v]) => typeof v === "string")
@@ -15,6 +15,23 @@ export default function cssTransformer(
     .replace(/\n/g, " ")
     .replace(/[ ]{2,}/g, " ")
     .trim();
+
+  for (const [k, v] of Object.entries(styles).filter(([k]) =>
+    k.startsWith(":")
+  )) {
+    out +=
+      " " +
+      `
+      .iid_${id}${k} {
+        ${Object.entries(v)
+          .map(([key, value]) => `${key}: ${value}`)
+          .join("~ ")}
+        }
+    `
+        .replace(/\n/g, " ")
+        .replace(/[ ]{2,}/g, " ")
+        .trim();
+  }
 
   return out;
 }

@@ -8,7 +8,7 @@ export default class Element {
     constructor(tag: ElementTag, iid: string, _window: Window);
     style: {
         [key: string]: any;
-        setProperty: (key: string, value: string) => void;
+        setProperty: (key: string, value: string, modifier?: string) => void;
     };
     appendChild(child: Element): void;
     insertBefore(child: Element, before: Element): void;

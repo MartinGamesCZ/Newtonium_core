@@ -23,10 +23,15 @@ export default class Element {
 
   style: {
     [key: string]: any;
-    setProperty: (key: string, value: string) => void;
+    setProperty: (key: string, value: string, modifier?: string) => void;
   } = {
-    setProperty: (key: string, value: string) => {
-      this.style[key] = value;
+    setProperty: (key: string, value: string, modifier: string = "_") => {
+      if (modifier == "_") this.style[key] = value;
+      else {
+        if (!this.style[modifier]) this.style[modifier] = {};
+
+        this.style[modifier][key] = value;
+      }
 
       const transformed = cssTransformer(this.iid, this.style);
 
