@@ -1,6 +1,8 @@
 import { dlopen, FFIType } from "bun:ffi";
 
+// Function for opening the core cdylib (with specified bindings)
 export function createFFI(path: string) {
+  // Open the cdylib and get the symbols
   const { symbols } = dlopen(path, {
     initialize: {
       args: [],
@@ -68,6 +70,8 @@ export function createFFI(path: string) {
   return symbols;
 }
 
+// Function for converting string to pointer (CString)
 export function toCString(str: string) {
+  // Convert string to Uint8Array and append null byte (string terminator)
   return new Uint8Array([...new TextEncoder().encode(str), 0]);
 }
