@@ -112,10 +112,10 @@ fn spawn_window_thread(
 
       // Match the first part of the message (command) and execute the corresponding function
       match splt[0] {
-        "create_element" => create_element(splt[1], splt[2], splt[3]),
+        "create_element" => create_element(splt[1], splt[2], splt[3], &window),
         "append_child" => append_child(splt[1], splt[2], &window),
         "remove_element" => remove_element(splt[1]),
-        "set_attribute" => set_attribute(splt[1], splt[2], splt[3], splt[4]),
+        "set_attribute" => set_attribute(splt[1], splt[2], splt[3], splt[4], &window),
         "get_attribute" => get_attribute(splt[1], splt[2], splt[3], splt[4], event_cb),
         "add_event_listener" => add_event_listener(splt[1], splt[2], splt[3], event_cb),
         "set_styles" => set_styles(splt[1], splt[2]),

@@ -4,6 +4,7 @@ pub mod elements;
 pub mod utils;
 pub mod ffi;
 pub mod commands;
+pub mod units;
 
 // Thread local storage for windows, elements, and element styles
 thread_local! {

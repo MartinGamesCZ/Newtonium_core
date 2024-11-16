@@ -2,9 +2,11 @@ use std::collections::HashMap;
 use gtk::prelude::*;
 use serde_json::Value;
 
+use crate::units::length::length_to_px;
+
 // Function for creating a new view element
 // View -> GtkBox
-pub fn create_element_view(args: HashMap<String, Value>) -> gtk::Widget {
+pub fn create_element_view(args: HashMap<String, Value>, window: gtk::Window) -> gtk::Widget {
   // Create a new GtkBox element
   let element = gtk::Box::new(gtk::Orientation::Vertical, 0);
 
@@ -15,30 +17,58 @@ pub fn create_element_view(args: HashMap<String, Value>) -> gtk::Widget {
     let str_value = value.as_str().unwrap();
 
     // Set the attribute of the element
-    set_element_attribute_view(upcasted_element, key, str_value);
+    set_element_attribute_view(upcasted_element, key, str_value, &window);
   });
 
   element.upcast()
 }
 
 // Function for setting the attribute of a view element
-pub fn set_element_attribute_view(element: &gtk::Widget, key: &str, value: &str) -> () {
+pub fn set_element_attribute_view(
+  element: &gtk::Widget,
+  key: &str,
+  value: &str,
+  window: &gtk::Window
+) -> () {
   // Downcast the element to a GtkBox
-  let element = element.downcast_ref::<gtk::Box>().unwrap();
+  let downcasted_element = element.downcast_ref::<gtk::Box>().unwrap();
+
+  // Get parent element
+  let parent = downcasted_element.parent();
 
   // Set the attribute of the element
   match key {
     "direction" =>
-      element.set_orientation(match value {
+      downcasted_element.set_orientation(match value {
         "vertical" => gtk::Orientation::Vertical,
         "horizontal" => gtk::Orientation::Horizontal,
 
         // Panic if the orientation is unknown
         _ => panic!("Unknown orientation: {}", value),
       }),
-    "spacing" => element.set_spacing(value.parse().unwrap()),
-    "width" => element.set_width_request(value.parse().unwrap()),
-    "height" => element.set_height_request(value.parse().unwrap()),
+    "spacing" => downcasted_element.set_spacing(value.parse().unwrap()),
+    "width" =>
+      downcasted_element.set_width_request(
+        length_to_px(
+          value,
+          match parent {
+            Some(parent) => parent.width_request(),
+            None => window.width_request(),
+          },
+          window
+        )
+      ),
+    "height" =>
+      downcasted_element.set_width_request(
+        length_to_px(
+          value,
+          match parent {
+            Some(parent) => parent.width_request(),
+            None => window.width_request(),
+          },
+          window
+        )
+      ),
 
     // Panic if the attribute is unknown
     _ => panic!("Unknown attribute: {}", key),

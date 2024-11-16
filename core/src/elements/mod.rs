@@ -10,7 +10,8 @@ pub mod image;
 // Function for getting the element creator
 pub fn get_element_creator(
   tag: &str,
-  args: HashMap<String, Value>
+  args: HashMap<String, Value>,
+  window: &gtk::Window
 ) -> Box<dyn Fn() -> gtk::Widget> {
   // Get creator function based on the tag
   let creator = match tag {
@@ -24,13 +25,22 @@ pub fn get_element_creator(
     _ => panic!("Unknown element: {}", tag),
   };
 
-  Box::new(move || creator(args.clone()))
+  // Clone to fix the lifetime issue
+  let cloned_window = window.clone();
+
+  Box::new(move || creator(args.clone(), cloned_window.clone()))
 }
 
 // Function for setting the attribute of an element
-pub fn set_element_attribute(tag: &str, element: &gtk::Widget, key: &str, value: &str) -> () {
+pub fn set_element_attribute(
+  tag: &str,
+  element: &gtk::Widget,
+  key: &str,
+  value: &str,
+  window: &gtk::Window
+) -> () {
   // Get the function for setting the attribute of the element
-  let func: fn(&gtk::Widget, &str, &str) -> () = match tag {
+  let func: fn(&gtk::Widget, &str, &str, &gtk::Window) -> () = match tag {
     "text" => text::set_element_attribute_text,
     "button" => button::set_element_attribute_button,
     "input" => input::set_element_attribute_input,
@@ -42,7 +52,7 @@ pub fn set_element_attribute(tag: &str, element: &gtk::Widget, key: &str, value:
   };
 
   // Set the attribute of the element
-  func(element, key, value);
+  func(element, key, value, window);
 
   ()
 }

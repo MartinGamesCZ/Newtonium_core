@@ -5,13 +5,13 @@ use crate::{ elements::get_element_creator, ELEMENTS };
 
 // [Command]
 // Function for creating a new element
-pub fn create_element(id: &str, tag: &str, args: &str) -> () {
+pub fn create_element(id: &str, tag: &str, args: &str, window: &gtk::Window) -> () {
   // Parse the arguments
   // JSON -> HashMap
   let output: HashMap<String, Value> = serde_json::from_str(args).unwrap();
 
   // Create the element
-  let creator = get_element_creator(tag, output);
+  let creator = get_element_creator(tag, output, window);
   let element = creator();
 
   // Add the class to the element
