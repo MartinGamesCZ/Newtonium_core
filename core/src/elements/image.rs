@@ -51,12 +51,12 @@ pub fn set_element_attribute_image(
         )
       ),
     "height" =>
-      downcasted_element.set_width_request(
+      downcasted_element.set_height_request(
         length_to_px(
           value,
           match parent {
-            Some(parent) => parent.width_request(),
-            None => window.width_request(),
+            Some(parent) => parent.height_request(),
+            None => window.height_request(),
           },
           window
         )
