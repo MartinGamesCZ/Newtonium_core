@@ -36,6 +36,7 @@ pub fn set_element_attribute_view(element: &gtk::Widget, key: &str, value: &str)
         // Panic if the orientation is unknown
         _ => panic!("Unknown orientation: {}", value),
       }),
+    "spacing" => element.set_spacing(value.parse().unwrap()),
     "width" => element.set_width_request(value.parse().unwrap()),
     "height" => element.set_height_request(value.parse().unwrap()),
 
@@ -61,6 +62,7 @@ pub fn get_element_attribute_view(element: &gtk::Widget, key: &str) -> String {
         // Panic if the orientation is unknown
         _ => panic!("Unknown orientation: {:?}", element.orientation()),
       }
+    "spacing" => element.spacing().to_string(),
     "width" => element.width_request().to_string(),
     "height" => element.height_request().to_string(),
 
