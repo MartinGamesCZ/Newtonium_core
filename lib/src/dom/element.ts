@@ -6,7 +6,13 @@ import cssTransformer from "../utils/css_transformer";
 import { receiveMessageOnPort } from "worker_threads";
 
 // Element tags available to use
-export type ElementTag = "view" | "text" | "button" | "input" | "image";
+export type ElementTag =
+  | "view"
+  | "text"
+  | "button"
+  | "input"
+  | "image"
+  | "webview";
 
 // Element class
 // Virtual - does not represent the actual element
