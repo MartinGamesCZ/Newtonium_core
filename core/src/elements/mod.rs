@@ -1,6 +1,4 @@
 use std::collections::HashMap;
-
-use gtk::prelude::*;
 use serde_json::Value;
 
 pub mod button;
@@ -8,35 +6,59 @@ pub mod view;
 pub mod text;
 pub mod input;
 
+// Function for getting the element creator
 pub fn get_element_creator(
   tag: &str,
   args: HashMap<String, Value>
 ) -> Box<dyn Fn() -> gtk::Widget> {
-  match tag {
-    "button" => Box::new(move || button::element_create_button(args.clone()).upcast()),
-    "text" => Box::new(move || text::create_element_text(args.clone()).upcast()),
-    "input" => Box::new(move || input::create_element_input(args.clone()).upcast()),
-    "view" => Box::new(move || view::create_element_view(args.clone()).upcast()),
+  // Get creator function based on the tag
+  let creator = match tag {
+    "button" => button::element_create_button,
+    "text" => text::create_element_text,
+    "input" => input::create_element_input,
+    "view" => view::create_element_view,
+
+    // Panic if the element is unknown
     _ => panic!("Unknown element: {}", tag),
-  }
+  };
+
+  Box::new(move || creator(args.clone()))
 }
 
-pub fn set_element_attribute(tag: &str, element: &gtk::Widget, key: &str, value: &str) {
-  match tag {
-    "text" => text::set_element_attribute_text(element.downcast_ref().unwrap(), key, value),
-    "button" => button::set_element_attribute_button(element.downcast_ref().unwrap(), key, value),
-    "input" => input::set_element_attribute_input(element.downcast_ref().unwrap(), key, value),
-    "view" => view::set_element_attribute_view(element.downcast_ref().unwrap(), key, value),
+// Function for setting the attribute of an element
+pub fn set_element_attribute(tag: &str, element: &gtk::Widget, key: &str, value: &str) -> () {
+  // Get the function for setting the attribute of the element
+  let func: fn(&gtk::Widget, &str, &str) -> () = match tag {
+    "text" => text::set_element_attribute_text,
+    "button" => button::set_element_attribute_button,
+    "input" => input::set_element_attribute_input,
+    "view" => view::set_element_attribute_view,
+
+    // Panic if the element is unknown
     _ => panic!("Unknown element: {}", tag),
-  }
+  };
+
+  // Set the attribute of the element
+  func(element, key, value);
+
+  ()
 }
 
+// Function for getting the attribute of an element
 pub fn get_element_attribute(tag: &str, element: &gtk::Widget, key: &str) -> String {
-  match tag {
-    "text" => text::get_element_attribute_text(element.downcast_ref().unwrap(), key),
-    "button" => button::get_element_attribute_button(element.downcast_ref().unwrap(), key),
-    "input" => input::get_element_attribute_input(element.downcast_ref().unwrap(), key),
-    "view" => view::get_element_attribute_view(element.downcast_ref().unwrap(), key),
+  // Get the function for getting the attribute of the element
+  let func: fn(&gtk::Widget, &str) -> String = match tag {
+    "text" => text::get_element_attribute_text,
+    "button" => button::get_element_attribute_button,
+    "input" => input::get_element_attribute_input,
+    "view" => view::get_element_attribute_view,
+
+    // Panic if the element is unknown
     _ => panic!("Unknown element: {}", tag),
-  }
+  };
+
+  // Get the attribute of the element
+  let value = func(element, key);
+
+  value
 }
