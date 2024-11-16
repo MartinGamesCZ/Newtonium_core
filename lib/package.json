@@ -3,7 +3,7 @@
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "type": "module",
-  "version": "0.3.11",
+  "version": "0.3.12",
   "scripts": {
     "prepack": "rm -rf dist && mkdir dist && mkdir dist/workers && bun build --minify --target=bun --sourcemap --outdir dist src/index.ts && bun build --minify --sourcemap --target=bun --outdir dist src/workers/runner.ts && tsc && cp src/lib dist -r && mv dist/index.js dist/src/ && mv dist/runner.js dist/workers/"
   },
