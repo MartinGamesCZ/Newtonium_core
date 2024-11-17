@@ -14,6 +14,8 @@ self.onmessage = (e) => {
   const id = toCString(e.data.id);
   const title = toCString(e.data.title);
   const icon = toCString(e.data.icon);
+  const width = e.data.width;
+  const height = e.data.height;
 
   // Initialize the application (FFI initialize function)
   core.initialize();
@@ -60,7 +62,7 @@ self.onmessage = (e) => {
   );
 
   // Create the window and get the channel pointer (FFI create_window function)
-  const channel_ptr = core.create_window(title, icon, id, cb);
+  const channel_ptr = core.create_window(title, icon, id, width, height, cb);
 
   // Post ready message to the main thread
   postMessage({

@@ -17,6 +17,8 @@ export function createFFI(path: string) {
         FFIType.cstring,
         FFIType.cstring,
         FFIType.cstring,
+        FFIType.i32,
+        FFIType.i32,
         FFIType.function,
       ],
       returns: FFIType.ptr,

@@ -18,6 +18,8 @@ export default class Window {
   core = createFFI(this.lib_path);
   title: string;
   icon: string;
+  width: number;
+  height: number;
   document: Document;
   localPort: MessagePort;
   shared: SharedArrayBuffer;
@@ -32,7 +34,7 @@ export default class Window {
     [key: string]: Function;
   } = {};
 
-  constructor(title: string, icon: string) {
+  constructor(title: string, icon: string, width: number, height: number) {
     // Create a new message channel
     const ports = new MessageChannel();
     this.localPort = ports.port1;
@@ -53,6 +55,8 @@ export default class Window {
     this._id = randomId();
     this.title = title;
     this.icon = icon;
+    this.width = width;
+    this.height = height;
     this.document = new Document(this);
   }
 
@@ -64,6 +68,8 @@ export default class Window {
       id: this._id,
       title: this.title,
       icon: this.icon,
+      width: this.width,
+      height: this.height,
     });
 
     // Listen for messages

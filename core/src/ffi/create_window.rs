@@ -22,6 +22,8 @@ pub extern "C" fn create_window(
   title: *const c_char,
   icon: *const c_char,
   id: *const c_char,
+  width: i32,
+  height: i32,
   event_cb: extern "C" fn(*const c_char, *const c_char) -> ()
 ) -> *mut async_channel::Sender<String> {
   // Convert the pointers to strings
@@ -34,7 +36,7 @@ pub extern "C" fn create_window(
 
   // Set the windows' properties
   window.set_icon_from_file(icon).unwrap_or(());
-  window.set_default_size(480, 360);
+  window.set_default_size(width, height);
   window.set_title(title.as_str());
 
   // Connect the delete event
