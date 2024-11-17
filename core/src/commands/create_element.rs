@@ -19,7 +19,8 @@ pub fn create_element(id: &str, tag: &str, args: &str, window: &gtk::Window) -> 
 
   // Add the element to the elements list
   ELEMENTS.with(|elements| {
-    elements.borrow_mut().insert(id.to_string(), element);
+    // Get elements list lock and insert the element
+    elements.lock().unwrap().insert(id.to_string(), element);
   });
 
   ()

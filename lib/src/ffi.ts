@@ -19,7 +19,6 @@ export function createFFI(path: string) {
         FFIType.cstring,
         FFIType.i32,
         FFIType.i32,
-        FFIType.function,
       ],
       returns: FFIType.ptr,
     },
@@ -42,7 +41,14 @@ export function createFFI(path: string) {
       returns: FFIType.void,
     },
     add_event_listener: {
-      args: [FFIType.ptr, FFIType.cstring, FFIType.cstring, FFIType.cstring],
+      args: [
+        FFIType.ptr,
+        FFIType.ptr,
+        FFIType.cstring,
+        FFIType.cstring,
+        FFIType.cstring,
+        FFIType.cstring,
+      ],
       returns: FFIType.void,
     },
     remove_element: {
@@ -54,17 +60,23 @@ export function createFFI(path: string) {
       returns: FFIType.void,
     },
     get_attribute: {
-      args: [
-        FFIType.ptr,
-        FFIType.cstring,
-        FFIType.cstring,
-        FFIType.cstring,
-        FFIType.cstring,
-      ],
-      returns: FFIType.cstring,
+      args: [FFIType.ptr, FFIType.cstring, FFIType.cstring, FFIType.cstring],
+      returns: FFIType.ptr,
     },
     insert_before: {
       args: [FFIType.ptr, FFIType.cstring, FFIType.cstring, FFIType.cstring],
+      returns: FFIType.void,
+    },
+    get_elements_pointer: {
+      args: [],
+      returns: FFIType.ptr,
+    },
+    get_callbacks_pointer: {
+      args: [],
+      returns: FFIType.ptr,
+    },
+    create_callback: {
+      args: [FFIType.ptr, FFIType.function, FFIType.cstring],
       returns: FFIType.void,
     },
   });
@@ -76,4 +88,10 @@ export function createFFI(path: string) {
 export function toCString(str: string) {
   // Convert string to Uint8Array and append null byte (string terminator)
   return new Uint8Array([...new TextEncoder().encode(str), 0]);
+}
+
+// Function for converting pointer to string (CString)
+export function fromCString(ptr: Uint8Array) {
+  // Decode the Uint8Array to string
+  return new TextDecoder().decode(ptr).split("\0")[0];
 }

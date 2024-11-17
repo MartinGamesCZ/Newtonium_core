@@ -1,12 +1,24 @@
-import { FFIType, JSCallback, type Pointer } from "bun:ffi";
+import {
+  CString,
+  FFIType,
+  JSCallback,
+  toArrayBuffer,
+  type Pointer,
+} from "bun:ffi";
 import type Window from "./window";
-import { toCString } from "../ffi";
+import { fromCString, toCString } from "../ffi";
 import { randomId } from "../utils/id";
 import cssTransformer from "../utils/css_transformer";
 import { receiveMessageOnPort } from "worker_threads";
 
 // Element tags available to use
-export type ElementTag = "view" | "text" | "button" | "input" | "image";
+export type ElementTag =
+  | "view"
+  | "text"
+  | "button"
+  | "input"
+  | "image"
+  | "canvas";
 
 // Element class
 // Virtual - does not represent the actual element
@@ -90,60 +102,35 @@ export default class Element {
 
   // Function to get an attribute
   getAttribute(key: string) {
-    // Generate a random id for the symbol
-    const sid = randomId();
-
-    // Get the shared buffer as Int32Array
-    // Used for Atomics.wait blocking
-    const i32 = new Int32Array(this._window.shared);
-
     // Request the core to get the attribute (FFI get_attribute function)
-    this._window.core.get_attribute(
-      this._window.getChannelPtr() as Pointer,
+    const value = this._window.core.get_attribute(
+      this._window._elements_ptr as Pointer,
       toCString(this.iid),
       toCString(this.tagName),
-      toCString(key),
-      toCString(sid)
+      toCString(key)
     );
 
-    // Wait for the response
-    const _status = Atomics.wait(i32, 0, 0, 10);
-
-    // Read the result
-    let message = "";
-
-    // While loop to prevent race conditions
-    while (true) {
-      const obj = receiveMessageOnPort(this._window.localPort);
-
-      if (!obj) break;
-
-      message = obj.message;
-    }
-
-    return message;
+    // Return the value
+    return new TextDecoder().decode(
+      new Uint8Array(toArrayBuffer(value as Pointer))
+    );
   }
 
   // Function to add an event listener
   addEventListener(event: string, listener: () => void) {
-    // Generate a random id for the symbol
     const symbol_id = randomId();
 
-    // Save the listener in the element listeners object
     this._window.element_listeners[symbol_id] = listener;
-
-    // Save the symbol id in the symbols map for the specific event
-    this._symbols.set(event, [...(this._symbols.get(event) || []), symbol_id]);
 
     // Add the event listener in the core (FFI add_event_listener function)
     this._window.core.add_event_listener(
-      this._window.getChannelPtr() as Pointer,
+      this._window._elements_ptr as Pointer,
+      this._window._callbacks_ptr as Pointer,
       toCString(this.iid),
       toCString(event),
+      toCString("event_listener"),
       toCString(symbol_id)
     );
-
-    return symbol_id;
   }
 
   // Function to remove an event listener

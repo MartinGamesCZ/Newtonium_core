@@ -10,3 +10,6 @@ pub mod set_attribute;
 pub mod get_attribute;
 pub mod add_event_listener;
 pub mod set_styles;
+// pub mod graphics;
+pub mod get_var_pointer;
+pub mod create_callback;

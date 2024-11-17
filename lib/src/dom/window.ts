@@ -15,14 +15,14 @@ export default class Window {
   private _worker: Worker;
   private _id: string;
   private _channel_ptr: number = -1;
+  _elements_ptr: number = -1;
+  _callbacks_ptr: number = -1;
   core = createFFI(this.lib_path);
   title: string;
   icon: string;
   width: number;
   height: number;
   document: Document;
-  localPort: MessagePort;
-  shared: SharedArrayBuffer;
 
   listeners: {
     [key: string]: Function[];
@@ -35,21 +35,8 @@ export default class Window {
   } = {};
 
   constructor(title: string, icon: string, width: number, height: number) {
-    // Create a new message channel
-    const ports = new MessageChannel();
-    this.localPort = ports.port1;
-
-    // Create a new shared array buffer (used for blocking)
-    this.shared = new SharedArrayBuffer(4);
-
     // Create a new thread for running gtk
-    this._worker = new Worker(this.worker_path, {
-      workerData: {
-        port: ports.port2,
-        shared: this.shared,
-      },
-      transferList: [ports.port2],
-    });
+    this._worker = new Worker(this.worker_path);
 
     // Save to properties
     this._id = randomId();
@@ -80,30 +67,18 @@ export default class Window {
       // If the message is ready, save the channel pointer and fire the ready event
       if (e.e === "ready") {
         this._channel_ptr = e.channel_ptr;
+        this._elements_ptr = e.elements_ptr;
+        this._callbacks_ptr = e.callbacks_ptr;
         this._fireEvent("ready");
       }
 
-      // If the message is event callback, fire the callback
-      if (e.e === "event") {
+      // If the message is event listener, fire the listener
+      if (e.e === "event_listener") {
         // Get the listener for the event
-        const listener =
-          this.element_listeners[
-            e.symbol_id.startsWith("!!") ? e.iid.split("!!")[0] : e.symbol_id
-          ];
+        const listener = this.element_listeners[e.symbol_id];
 
         // If there is no listener, return
         if (!listener) return;
-
-        // If the event is special (like get_attributes callback), call the listener with the data
-        if (e.symbol_id.startsWith("!!")) {
-          // Call the listener with the data (parse the data from the iid)
-          listener(e.iid.split("!!").slice(1).join("!!").split(";~;")[0]);
-
-          // Delete the listener, as it is a one-time listener
-          delete this.element_listeners[e.symbol_id];
-
-          return;
-        }
 
         // Call the listener, no data to pass
         listener();

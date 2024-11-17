@@ -2,10 +2,8 @@ use std::os::raw::c_char;
 use gtk::prelude::*;
 use crate::{
   commands::{
-    add_event_listener::add_event_listener,
     append_child::append_child,
     create_element::create_element,
-    get_attribute::get_attribute,
     insert_before::insert_before,
     remove_element::remove_element,
     set_attribute::set_attribute,
@@ -23,8 +21,7 @@ pub extern "C" fn create_window(
   icon: *const c_char,
   id: *const c_char,
   width: i32,
-  height: i32,
-  event_cb: extern "C" fn(*const c_char, *const c_char) -> ()
+  height: i32
 ) -> *mut async_channel::Sender<String> {
   // Convert the pointers to strings
   let title = ptr_to_str(title);
@@ -34,7 +31,7 @@ pub extern "C" fn create_window(
   // Create a new window
   let window = gtk::Window::new(gtk::WindowType::Toplevel);
 
-  // Set the windows' properties
+  // Set the window's properties
   window.set_icon_from_file(icon).unwrap_or(());
   window.set_default_size(width, height);
   window.set_title(title.as_str());
@@ -53,7 +50,8 @@ pub extern "C" fn create_window(
     // Upcast the vertical box to a widget
     let upcased_element = bx.clone().upcast();
 
-    elements.borrow_mut().insert("body".to_string(), upcased_element);
+    // Insert the vertical box into the elements list
+    elements.lock().unwrap().insert("body".to_string(), upcased_element);
   });
 
   // Add the vertical box to the window
@@ -67,15 +65,18 @@ pub extern "C" fn create_window(
   });
 
   // Spawn a new thread for the window
-  spawn_window_thread(rx, event_cb, window);
+  spawn_window_thread(rx, window);
 
+  // Return the channel sender pointer
   Box::into_raw(Box::new(tx))
 }
 
 // Function for connecting the delete event of a window
 fn connect_delete_event(window: &gtk::Window, id: &str) -> () {
+  // Convert the ID to a string
   let id = id.to_string();
 
+  // Connect the delete event
   window.connect_delete_event(move |_, _| {
     WINDOWS.with(|windows| {
       // Get the windows list
@@ -97,11 +98,7 @@ fn connect_delete_event(window: &gtk::Window, id: &str) -> () {
 }
 
 // Function for spawning a new thread for a window
-fn spawn_window_thread(
-  rx: async_channel::Receiver<String>,
-  event_cb: extern "C" fn(*const c_char, *const c_char) -> (),
-  window: gtk::Window
-) -> () {
+fn spawn_window_thread(rx: async_channel::Receiver<String>, window: gtk::Window) -> () {
   // Create new main context
   let main_context = gtk::glib::MainContext::default();
 
@@ -118,8 +115,6 @@ fn spawn_window_thread(
         "append_child" => append_child(splt[1], splt[2], &window),
         "remove_element" => remove_element(splt[1]),
         "set_attribute" => set_attribute(splt[1], splt[2], splt[3], splt[4], &window),
-        "get_attribute" => get_attribute(splt[1], splt[2], splt[3], splt[4], event_cb),
-        "add_event_listener" => add_event_listener(splt[1], splt[2], splt[3], event_cb),
         "set_styles" => set_styles(splt[1], splt[2]),
         "insert_before" => insert_before(splt[1], splt[2], splt[3], &window),
 

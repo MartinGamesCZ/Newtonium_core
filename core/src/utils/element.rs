@@ -4,7 +4,10 @@ use gtk::prelude::*;
 // Function for getting an element by its ID
 pub fn get_element_by_id(id: &str) -> gtk::Widget {
   // Get the element by its ID
-  let element = ELEMENTS.with(|elements| { elements.borrow().get(id).unwrap().clone() });
+  let element = ELEMENTS.with(|elements| {
+    let guard = elements.lock().unwrap();
+    guard.get(id).unwrap().clone()
+  });
 
   element
 }
@@ -12,7 +15,8 @@ pub fn get_element_by_id(id: &str) -> gtk::Widget {
 // Function for removing an element from list
 pub fn remove_element_from_list(id: &str) -> () {
   ELEMENTS.with(|elements| {
-    elements.borrow_mut().remove(id);
+    let mut elements = elements.lock().unwrap();
+    elements.remove(id);
   });
 
   ()
