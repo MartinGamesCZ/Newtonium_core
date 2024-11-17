@@ -6,7 +6,7 @@ pub mod view;
 pub mod text;
 pub mod input;
 pub mod image;
-pub mod webview;
+// pub mod webview;
 
 // Function for getting the element creator
 pub fn get_element_creator(
@@ -21,7 +21,7 @@ pub fn get_element_creator(
     "input" => input::create_element_input,
     "view" => view::create_element_view,
     "image" => image::create_element_image,
-    "webview" => webview::create_element_webview,
+    // "webview" => webview::create_element_webview,
 
     // Panic if the element is unknown
     _ => panic!("Unknown element: {}", tag),
@@ -48,7 +48,7 @@ pub fn set_element_attribute(
     "input" => input::set_element_attribute_input,
     "view" => view::set_element_attribute_view,
     "image" => image::set_element_attribute_image,
-    "webview" => webview::set_element_attribute_webview,
+    // "webview" => webview::set_element_attribute_webview,
 
     // Panic if the element is unknown
     _ => panic!("Unknown element: {}", tag),
@@ -69,7 +69,7 @@ pub fn get_element_attribute(tag: &str, element: &gtk::Widget, key: &str) -> Str
     "input" => input::get_element_attribute_input,
     "view" => view::get_element_attribute_view,
     "image" => image::get_element_attribute_image,
-    "webview" => webview::get_element_attribute_webview,
+    // "webview" => webview::get_element_attribute_webview,
 
     // Panic if the element is unknown
     _ => panic!("Unknown element: {}", tag),
