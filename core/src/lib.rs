@@ -1,10 +1,11 @@
-use std::{ cell::RefCell, collections::HashMap, os::raw::c_char };
+use std::{ cell::RefCell, collections::HashMap, hash::Hash, os::raw::c_char };
 
 pub mod elements;
 pub mod utils;
 pub mod ffi;
 pub mod commands;
 pub mod units;
+pub mod graphics;
 
 // Thread local storage for windows, elements, and element styles
 thread_local! {
@@ -18,4 +19,5 @@ thread_local! {
   pub static ELEMENT_STYLES: RefCell<HashMap<String, gtk::CssProvider>> = RefCell::new(
     HashMap::new()
   );
+  pub static GRAPHICS: RefCell<HashMap<String, u32>> = RefCell::new(HashMap::new());
 }

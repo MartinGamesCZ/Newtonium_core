@@ -1,5 +1,6 @@
 use std::{ collections::HashMap, os::raw::c_char };
 use crate::utils::{ channel::frame_to_ptr, pointer::ptr_to_str };
+use gdk::glib::Value;
 use gtk::prelude::*;
 use std::sync::Mutex;
 
@@ -56,11 +57,14 @@ pub extern "C" fn add_event_listener(
   let symbol_id = ptr_to_str(symbol_id);
 
   // Connect the event listener
-  element.connect(&key, false, move |_| {
+  element.connect(&key.clone(), false, move |_| {
     // Call the callback function
     cb(frame_to_ptr(&symbol_id));
 
-    None
+    match key.as_str() {
+      "render" => Some(Value::from(true)),
+      _ => None,
+    }
   });
 
   ()

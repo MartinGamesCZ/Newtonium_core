@@ -10,6 +10,7 @@ import { fromCString, toCString } from "../ffi";
 import { randomId } from "../utils/id";
 import cssTransformer from "../utils/css_transformer";
 import { receiveMessageOnPort } from "worker_threads";
+import type { RGBA } from "../utils/color";
 
 // Element tags available to use
 export type ElementTag =
@@ -35,6 +36,37 @@ export default class Element {
     this.iid = iid;
     this._window = _window;
   }
+
+  // Canvas object
+  g = {
+    drawLine: (
+      start_x: number,
+      start_y: number,
+      end_x: number,
+      end_y: number,
+      color: RGBA,
+      width: number
+    ) => {
+      this.setAttribute(
+        "@g_line",
+        [start_x, start_y, 0, end_x, end_y, 0, color.toGString(), width].join(
+          "/"
+        )
+      );
+    },
+    clear: () => {
+      this.setAttribute("@g_clear", "");
+    },
+    update: () => {
+      this.setAttribute("@g_update", "");
+    },
+    make_current: () => {
+      this.setAttribute("@g_make_current", "");
+    },
+    load: () => {
+      this.setAttribute("@g_load", "");
+    },
+  };
 
   // Style object
   // HTML DOM alike
