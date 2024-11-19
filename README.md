@@ -1,7 +1,6 @@
 # Newtonium_core
 
-> [!NOTE]
-> There is currently a [new branch](https://github.com/MartinGamesCZ/Newtonium_core/tree/gravity) where new version (GTK based) is developed to be used for Newtonium Gravity renderer.
+**THIS IS MADE ONLY TO BE USED WITH THE NEWTONIUM FRAMEWORK, DON'T EXPECT IT TO WORK ON ITS OWN AND DON'T EXPECT ANY SUPPORT**
 
 ... Newtonium, just without the electrons.
 
