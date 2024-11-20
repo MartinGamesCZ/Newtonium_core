@@ -74,10 +74,7 @@ pub fn set_element_attribute_canvas(
       let ca = to_f32(split[9]);
       let lw = to_i32(split[10]);
 
-      let program = get_program("@g_line");
-
       canvas_graphics_draw_line(
-        program,
         sx,
         sy,
         sz,

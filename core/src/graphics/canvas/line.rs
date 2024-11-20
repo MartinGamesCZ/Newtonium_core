@@ -25,7 +25,6 @@ const FRAGMENT_SHADER: &str =
 "#;
 
 pub fn canvas_graphics_draw_line(
-  mprogram: u32,
   start_x: i32,
   start_y: i32,
   start_z: f32,
@@ -68,8 +67,8 @@ pub fn canvas_graphics_draw_line(
     gl::LinkProgram(program);
 
     // Clean up shaders
-    /*gl::DeleteShader(vertex_shader);
-    gl::DeleteShader(fragment_shader);*/
+    gl::DeleteShader(vertex_shader);
+    gl::DeleteShader(fragment_shader);
 
     // Set line width
     gl::LineWidth(width as f32);
