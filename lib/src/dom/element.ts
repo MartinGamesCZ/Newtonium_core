@@ -54,6 +54,18 @@ export default class Element {
         )
       );
     },
+    drawRectangle: (
+      start_x: number,
+      start_y: number,
+      end_x: number,
+      end_y: number,
+      color: RGBA
+    ) => {
+      this.setAttribute(
+        "@g_rectangle",
+        [start_x, start_y, 0, end_x, end_y, 0, color.toGString()].join("/")
+      );
+    },
     clear: () => {
       this.setAttribute("@g_clear", "");
     },

@@ -9,10 +9,12 @@ use crate::{
       canvas_make_current,
       clear::canvas_graphics_clear,
       line::canvas_graphics_draw_line,
+      rectangle::canvas_graphics_draw_rectangle,
     },
     program::get_program,
   },
   units::length::length_to_px,
+  utils::datatype::{ str_to_f32, str_to_i32 },
 };
 
 // Function for creating a new canvas element
@@ -54,25 +56,17 @@ pub fn set_element_attribute_canvas(
     "@g_line" => {
       let split = value.split("/").collect::<Vec<&str>>();
 
-      fn to_i32(value: &str) -> i32 {
-        value.parse::<i32>().unwrap()
-      }
-
-      fn to_f32(value: &str) -> f32 {
-        value.parse::<f32>().unwrap()
-      }
-
-      let sx = to_i32(split[0]);
-      let sy = to_i32(split[1]);
-      let sz = to_f32(split[2]);
-      let ex = to_i32(split[3]);
-      let ey = to_i32(split[4]);
-      let ez = to_f32(split[5]);
-      let cr = to_f32(split[6]);
-      let cg = to_f32(split[7]);
-      let cb = to_f32(split[8]);
-      let ca = to_f32(split[9]);
-      let lw = to_i32(split[10]);
+      let sx = str_to_i32(split[0]);
+      let sy = str_to_i32(split[1]);
+      let sz = str_to_f32(split[2]);
+      let ex = str_to_i32(split[3]);
+      let ey = str_to_i32(split[4]);
+      let ez = str_to_f32(split[5]);
+      let cr = str_to_f32(split[6]);
+      let cg = str_to_f32(split[7]);
+      let cb = str_to_f32(split[8]);
+      let ca = str_to_f32(split[9]);
+      let lw = str_to_i32(split[10]);
 
       let program = get_program("@g_line");
 
@@ -85,6 +79,34 @@ pub fn set_element_attribute_canvas(
         ey,
         ez,
         lw,
+        [cr / 256.0, cg / 256.0, cb / 256.0, ca / 256.0],
+        downcasted_element
+      );
+    }
+    "@g_rectangle" => {
+      let split = value.split("/").collect::<Vec<&str>>();
+
+      let sx = str_to_i32(split[0]);
+      let sy = str_to_i32(split[1]);
+      let sz = str_to_f32(split[2]);
+      let ex = str_to_i32(split[3]);
+      let ey = str_to_i32(split[4]);
+      let ez = str_to_f32(split[5]);
+      let cr = str_to_f32(split[6]);
+      let cg = str_to_f32(split[7]);
+      let cb = str_to_f32(split[8]);
+      let ca = str_to_f32(split[9]);
+
+      let program = get_program("@g_line");
+
+      canvas_graphics_draw_rectangle(
+        program,
+        sx,
+        sy,
+        sz,
+        ex,
+        ey,
+        ez,
         [cr / 256.0, cg / 256.0, cb / 256.0, ca / 256.0],
         downcasted_element
       );

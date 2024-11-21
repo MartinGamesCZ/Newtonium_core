@@ -6,6 +6,7 @@ use super::shader::delete_shader;
 
 pub mod clear;
 pub mod line;
+pub mod rectangle;
 
 const VERTEX_SHADER: &str =
   r#"

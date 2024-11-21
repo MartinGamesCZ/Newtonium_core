@@ -3,28 +3,7 @@ use std::ffi::CString;
 use gtk::prelude::*;
 use crate::graphics::coordinates;
 
-// Vertex shader
-const VERTEX_SHADER: &str =
-  r#"
-    #version 330 core
-    layout (location = 0) in vec2 position;
-    void main() {
-        gl_Position = vec4(position.x, position.y, 0.0, 1.0);
-    }
-"#;
-
-// Fragment shader
-const FRAGMENT_SHADER: &str =
-  r#"
-    #version 330 core
-    uniform vec4 line_color;
-    out vec4 FragColor;
-    void main() {
-        FragColor = line_color;
-    }
-"#;
-
-pub fn canvas_graphics_draw_line(
+pub fn canvas_graphics_draw_rectangle(
   program: u32,
   start_x: i32,
   start_y: i32,
@@ -32,7 +11,6 @@ pub fn canvas_graphics_draw_line(
   end_x: i32,
   end_y: i32,
   end_z: f32,
-  width: i32,
   color: [f32; 4], // RGBA
   canvas: &gtk::GLArea
 ) {
@@ -43,15 +21,19 @@ pub fn canvas_graphics_draw_line(
   let end_x_gl = coordinates::coordinate_to_gl(end_x, canvas_width);
   let end_y_gl = coordinates::coordinate_to_gl(end_y, canvas_height);
 
-  let vertices: [[f32; 3]; 2] = [
-    [start_x_gl, start_y_gl, start_z],
-    [end_x_gl, end_y_gl, end_z],
+  // Define vertices for a rectangle (6 vertices for 2 triangles)
+  let vertices: [[f32; 3]; 6] = [
+    // First triangle
+    [start_x_gl, start_y_gl, start_z], // Bottom-left
+    [end_x_gl, start_y_gl, start_z], // Bottom-right
+    [start_x_gl, end_y_gl, start_z], // Top-left
+    // Second triangle
+    [end_x_gl, start_y_gl, start_z], // Bottom-right
+    [end_x_gl, end_y_gl, start_z], // Top-right
+    [start_x_gl, end_y_gl, start_z], // Top-left
   ];
 
   unsafe {
-    // Set line width
-    gl::LineWidth(width as f32);
-
     // Use shader program
     gl::UseProgram(program);
 
@@ -66,8 +48,8 @@ pub fn canvas_graphics_draw_line(
     buffer_dynamic_draw(&vertices);
     vertex_attrib_pointer();
 
-    // Draw line
-    gl::DrawArrays(gl::LINE, 0, 2);
+    // Draw rectangle using triangles
+    gl::DrawArrays(gl::TRIANGLES, 0, 6);
 
     // Cleanup
     gl::BindBuffer(gl::ARRAY_BUFFER, 0);
