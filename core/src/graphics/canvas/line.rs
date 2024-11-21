@@ -1,28 +1,5 @@
-use std::ffi::CString;
-
 use gtk::prelude::*;
 use crate::graphics::coordinates;
-
-// Vertex shader
-const VERTEX_SHADER: &str =
-  r#"
-    #version 330 core
-    layout (location = 0) in vec2 position;
-    void main() {
-        gl_Position = vec4(position.x, position.y, 0.0, 1.0);
-    }
-"#;
-
-// Fragment shader
-const FRAGMENT_SHADER: &str =
-  r#"
-    #version 330 core
-    uniform vec4 line_color;
-    out vec4 FragColor;
-    void main() {
-        FragColor = line_color;
-    }
-"#;
 
 pub fn canvas_graphics_draw_line(
   program: u32,
@@ -67,7 +44,7 @@ pub fn canvas_graphics_draw_line(
     vertex_attrib_pointer();
 
     // Draw line
-    gl::DrawArrays(gl::LINE, 0, 2);
+    gl::DrawArrays(gl::LINES, 0, 2);
 
     // Cleanup
     gl::BindBuffer(gl::ARRAY_BUFFER, 0);

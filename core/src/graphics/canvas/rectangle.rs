@@ -28,9 +28,9 @@ pub fn canvas_graphics_draw_rectangle(
     [end_x_gl, start_y_gl, start_z], // Bottom-right
     [start_x_gl, end_y_gl, start_z], // Top-left
     // Second triangle
-    [end_x_gl, start_y_gl, start_z], // Bottom-right
-    [end_x_gl, end_y_gl, start_z], // Top-right
-    [start_x_gl, end_y_gl, start_z], // Top-left
+    [end_x_gl, start_y_gl, end_z], // Bottom-right
+    [end_x_gl, end_y_gl, end_z], // Top-right
+    [start_x_gl, end_y_gl, end_z], // Top-left
   ];
 
   unsafe {
