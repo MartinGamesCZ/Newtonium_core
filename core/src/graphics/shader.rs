@@ -25,3 +25,20 @@ pub fn get_shader(id: &str) -> u32 {
     graphics.get(id).unwrap().to_owned()
   })
 }
+
+pub fn delete_shader(id: &str) -> bool {
+  GRAPHICS.with(|g| {
+    let mut graphics = g.borrow_mut();
+    let shader = graphics.remove(id);
+
+    if shader.is_none() {
+      return false;
+    }
+
+    unsafe {
+      gl::DeleteShader(shader.unwrap());
+    }
+
+    true
+  })
+}

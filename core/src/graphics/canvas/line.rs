@@ -25,6 +25,7 @@ const FRAGMENT_SHADER: &str =
 "#;
 
 pub fn canvas_graphics_draw_line(
+  program: u32,
   start_x: i32,
   start_y: i32,
   start_z: f32,
@@ -48,28 +49,6 @@ pub fn canvas_graphics_draw_line(
   ];
 
   unsafe {
-    // Create vertex shader
-    let vertex_shader = gl::CreateShader(gl::VERTEX_SHADER);
-    let vertex_source = CString::new(VERTEX_SHADER).unwrap();
-    gl::ShaderSource(vertex_shader, 1, &vertex_source.as_ptr(), std::ptr::null());
-    gl::CompileShader(vertex_shader);
-
-    // Create fragment shader
-    let fragment_shader = gl::CreateShader(gl::FRAGMENT_SHADER);
-    let fragment_source = CString::new(FRAGMENT_SHADER).unwrap();
-    gl::ShaderSource(fragment_shader, 1, &fragment_source.as_ptr(), std::ptr::null());
-    gl::CompileShader(fragment_shader);
-
-    // Create and link program
-    let program = gl::CreateProgram();
-    gl::AttachShader(program, vertex_shader);
-    gl::AttachShader(program, fragment_shader);
-    gl::LinkProgram(program);
-
-    // Clean up shaders
-    gl::DeleteShader(vertex_shader);
-    gl::DeleteShader(fragment_shader);
-
     // Set line width
     gl::LineWidth(width as f32);
 

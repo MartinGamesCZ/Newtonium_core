@@ -2,6 +2,8 @@ use gtk::prelude::*;
 
 use crate::graphics::{ program::create_program, shader::create_shader };
 
+use super::shader::delete_shader;
+
 pub mod clear;
 pub mod line;
 
@@ -48,5 +50,9 @@ pub fn canvas_make_current(canvas: &gtk::GLArea) -> () {
 pub fn canvas_create_program() {
   create_shader(VERTEX_SHADER, "@g_line_vertex", gl::VERTEX_SHADER);
   create_shader(FRAGMENT_SHADER, "@g_line_fragment", gl::FRAGMENT_SHADER);
+
   create_program("@g_line_vertex", "@g_line_fragment", "@g_line");
+
+  delete_shader("@g_line_vertex");
+  delete_shader("@g_line_fragment");
 }
