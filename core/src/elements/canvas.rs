@@ -10,6 +10,7 @@ use crate::{
       clear::canvas_graphics_clear,
       line::canvas_graphics_draw_line,
       rectangle::canvas_graphics_draw_rectangle,
+      vertices::canvas_graphics_draw_vertices,
     },
     program::get_program,
   },
@@ -107,6 +108,37 @@ pub fn set_element_attribute_canvas(
         ex,
         ey,
         ez,
+        [cr / 256.0, cg / 256.0, cb / 256.0, ca / 256.0],
+        downcasted_element
+      );
+    }
+    "@g_vertices" => {
+      let split = value.split("/").collect::<Vec<&str>>();
+
+      let vertices = split[1].split("!").collect::<Vec<&str>>();
+
+      let vertices = vertices
+        .iter()
+        .map(|vertex| {
+          let vertex = vertex.split(",").collect::<Vec<&str>>();
+          let vertex = vertex
+            .iter()
+            .map(|v| v.parse::<f32>().unwrap())
+            .collect::<Vec<f32>>();
+          vertex
+        })
+        .collect::<Vec<Vec<f32>>>();
+
+      let cr = str_to_f32(split[2]);
+      let cg = str_to_f32(split[3]);
+      let cb = str_to_f32(split[4]);
+      let ca = str_to_f32(split[5]);
+
+      let program = get_program(split[0]);
+
+      canvas_graphics_draw_vertices(
+        program,
+        vertices,
         [cr / 256.0, cg / 256.0, cb / 256.0, ca / 256.0],
         downcasted_element
       );

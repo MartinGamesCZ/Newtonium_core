@@ -12,3 +12,4 @@ pub mod add_event_listener;
 pub mod set_styles;
 pub mod get_var_pointer;
 pub mod create_callback;
+pub mod g_create_program;

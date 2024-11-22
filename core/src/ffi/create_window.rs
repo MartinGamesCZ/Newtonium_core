@@ -4,6 +4,7 @@ use crate::{
   commands::{
     append_child::append_child,
     create_element::create_element,
+    g_create_program::g_create_program,
     insert_before::insert_before,
     remove_element::remove_element,
     set_attribute::set_attribute,
@@ -117,6 +118,7 @@ fn spawn_window_thread(rx: async_channel::Receiver<String>, window: gtk::Window)
         "set_attribute" => set_attribute(splt[1], splt[2], splt[3], splt[4], &window),
         "set_styles" => set_styles(splt[1], splt[2]),
         "insert_before" => insert_before(splt[1], splt[2], splt[3], &window),
+        "g_create_program" => g_create_program(splt[1], splt[2], splt[3]),
 
         // If the message is unknown, panic
         _ => panic!("Unknown message: {}", msg),

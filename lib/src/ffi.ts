@@ -79,6 +79,10 @@ export function createFFI(path: string) {
       args: [FFIType.ptr, FFIType.function, FFIType.cstring],
       returns: FFIType.void,
     },
+    g_create_program: {
+      args: [FFIType.ptr, FFIType.cstring, FFIType.cstring, FFIType.cstring],
+      returns: FFIType.void,
+    },
   });
 
   return symbols;

@@ -66,6 +66,28 @@ export default class Element {
         [start_x, start_y, 0, end_x, end_y, 0, color.toGString()].join("/")
       );
     },
+    drawVertices: (program: string, vertices: number[][], color: RGBA) => {
+      this.setAttribute(
+        "@g_vertices",
+        [
+          program,
+          vertices.map((v) => v.join(",")).join("!"),
+          color.toGString(),
+        ].join("/")
+      );
+    },
+    createProgram: (
+      id: string,
+      vertex_shader: string,
+      fragment_shader: string
+    ) => {
+      this._window.core.g_create_program(
+        this._window.getChannelPtr() as Pointer,
+        toCString(id),
+        toCString(vertex_shader.replaceAll(";", "%~")),
+        toCString(fragment_shader.replaceAll(";", "%~"))
+      );
+    },
     clear: () => {
       this.setAttribute("@g_clear", "");
     },
